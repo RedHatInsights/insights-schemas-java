@@ -10,6 +10,6 @@ Import notification schemas in your java project like:
    <dependency>
       <groupId>com.redhat.cloud.common</groupId>
       <artifactId>insights-notification-schemas-java</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>0.1-SNAPSHOT</version>
    </dependency>
 ----
