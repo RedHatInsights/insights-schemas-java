@@ -1,0 +1,15 @@
+= Red Hat Insights schemas Java code
+
+A repository with schema code that can be used in java based
+projects.
+
+Import notification schemas in your java project like:
+
+[source,xml]
+----
+   <dependency>
+      <groupId>com.redhat.cloud.common</groupId>
+      <artifactId>insights-notification-schemas-java</artifactId>
+      <version>1.0-SNAPSHOT</version>
+   </dependency>
+----

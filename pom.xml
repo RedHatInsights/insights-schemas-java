@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.redhat.cloud.common</groupId>
+    <artifactId>insights-schemas-java-parent</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Red Hat Insights schemas Java code</name>
+    <description>Schemas for Java apps on cloud.redhat.com</description>
+    <url>https://github.com/RedHatInsights/insights-schemas-java</url>
+
+    <modules>
+        <module>insights-notification-schemas-java</module>
+    </modules>
+
+
+    <properties>
+        <compiler-plugin.version>3.8.1</compiler-plugin.version>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
+        <java.release>11</java.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <surefire-plugin.version>2.22.1</surefire-plugin.version>
+        <avro.version>1.10.0</avro.version>
+        <checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
+    </properties>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/RedHatInsights/insights-schemas-java.git</connection>
+        <url>scm:git:https://github.com/RedHatInsights/insights-schemas-java.git</url>
+        <developerConnection>scm:git:https://github.com/RedHatInsights/insights-schemas-java.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>Josejulio Martínez</name>
+            <organization>Red Hat</organization>
+        </developer>
+    </developers>
+    <dependencies>
+        <!-- Schema management -->
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+            <version>${avro.version}</version>
+        </dependency>
+    </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>jboss.staging</id>
+            <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2</url>
+        </repository>
+    </distributionManagement>
+</project>

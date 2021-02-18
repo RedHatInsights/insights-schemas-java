@@ -1,0 +1,21 @@
+This file was generated using:
+`git diff -U1 Action.java` and putting the output below
+It is important to remove the number that appears after "serialVersionUID =" to avoid conflicts when doing a change
+to the avro schema.
+Only update if there is a conflict, if you want to customize what is done in the static block, is better to
+update com.redhat.cloud.notifications.avro.AvroInit.init
+--- a/Action.java
++++ b/Action.java
+@@ -16,2 +16,12 @@ import org.apache.avro.message.SchemaStore;
+ public class Action extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
++  // ---- Automatically added using a maven patch plugin ----
++  // This code needs to happen before the declaration (and initialization) of SCHEMAS or else it won't work.
++  static {
++    if (Action.SCHEMA$ != null) {
++      throw new RuntimeException("Application was not able to update before initializing the SCHEMA");
++    }
++    com.redhat.cloud.notifications.avro.AvroInit.init();
++  }
++  // ---- End of added code ----
++
+   private static final long serialVersionUID =
