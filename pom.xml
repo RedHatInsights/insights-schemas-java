@@ -23,6 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <surefire-plugin.version>2.22.1</surefire-plugin.version>
         <avro.version>1.10.0</avro.version>
+        <junit.version>5.7.1</junit.version>
         <checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
     </properties>
 
@@ -48,12 +49,6 @@
         </developer>
     </developers>
     <dependencies>
-        <!-- Schema management -->
-        <dependency>
-            <groupId>org.apache.avro</groupId>
-            <artifactId>avro</artifactId>
-            <version>${avro.version}</version>
-        </dependency>
     </dependencies>
     <distributionManagement>
         <repository>
