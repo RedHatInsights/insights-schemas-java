@@ -1,2 +1,2 @@
-before_install:
-  - alias patch="git apply"
+install:
+  - alias patch="git apply" && mvn clean install -DskipTests
