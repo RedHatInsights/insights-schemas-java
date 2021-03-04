@@ -111,7 +111,7 @@
                 <artifactId>maven-patch-plugin</artifactId>
                 <version>1.2</version>
                 <configuration>
-                    <originalFile>target/generated-sources/avro/com/redhat/cloud/notifications/ingress/Action.java</originalFile>
+                    <originalFile>${project.build.directory}/generated-sources/avro/com/redhat/cloud/notifications/ingress/Action.java</originalFile>
                     <patchDirectory>src/main/resources/avro</patchDirectory>
                     <patches>
                         <patch>Action.java.patch</patch>
