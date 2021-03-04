@@ -1,2 +1,2 @@
 before_install:
-  - apt-get install patch
+  - sudo apt-get install patch
