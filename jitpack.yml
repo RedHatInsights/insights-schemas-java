@@ -1,2 +1,2 @@
 before_install:
-  - sudo apt-get install patch
+  - alias patch="git apply"
