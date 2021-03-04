@@ -18,8 +18,10 @@
 
     <properties>
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
-        <maven.compiler.parameters>true</maven.compiler.parameters>
         <java.release>11</java.release>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
+        <maven.compiler.target>${java.release}</maven.compiler.target>
+        <maven.compiler.source>${java.release}</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <surefire-plugin.version>2.22.1</surefire-plugin.version>
         <avro.version>1.10.0</avro.version>
