@@ -27,6 +27,13 @@
       "type": "string"
     },
     {
+        "name": "context",
+        "type": {
+            "type": "string",
+            "logicalType": "json-object"
+        }
+    },
+    {
       "name": "events",
       "type": {
         "type": "array",
