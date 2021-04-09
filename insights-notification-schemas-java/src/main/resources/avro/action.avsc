@@ -4,8 +4,8 @@
   "name": "Action",
   "fields": [
     {
-        "name": "bundle",
-        "type": "string"
+      "name": "bundle",
+      "type": "string"
     },
     {
       "name": "application",
@@ -27,12 +27,40 @@
       "type": "string"
     },
     {
-      "name": "payload",
+        "name": "context",
+        "type": {
+            "type": "string",
+            "logicalType": "json-object"
+        }
+    },
+    {
+      "name": "events",
       "type": {
-          "type": "string",
-          "logicalType": "json-object"
-      },
-      "default": "{}"
+        "type": "array",
+        "items": {
+          "name": "Event",
+          "type": "record",
+          "fields": [
+            {
+              "name": "metadata",
+              "type": {
+                "name": "Metadata",
+                "type": "record",
+                "fields": [
+                ]
+              }
+            },
+            {
+              "name": "payload",
+              "type": {
+                "type": "string",
+                "logicalType": "json-object"
+              },
+              "default": "{}"
+            }
+          ]
+        }
+      }
     }
   ]
 }
