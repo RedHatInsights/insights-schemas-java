@@ -25,7 +25,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <surefire-plugin.version>2.22.2</surefire-plugin.version>
         <avro.version>1.10.0</avro.version>
-        <junit.version>5.7.1</junit.version>
+        <junit.version>5.7.2</junit.version>
         <checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
 	<javadoc.plugin.version>3.2.0</javadoc.plugin.version>
     </properties>
