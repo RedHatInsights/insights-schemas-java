@@ -7,17 +7,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.redhat.cloud.notifications.TestHelpers.serializeAction;
-import static com.redhat.cloud.notifications.TestHelpers.deserializeAction;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestSerialization {
 
+    private Decoder decoder = new Decoder();
+    private Encoder encoder = new Encoder();
 
     @Test
     void testActionSerialization() throws Exception {
         Action targetAction = new Action();
+        targetAction.setVersion("v1.1.0");
         targetAction.setBundle("my-bundle");
         targetAction.setApplication("Policies");
         targetAction.setTimestamp(LocalDateTime.now());
@@ -53,9 +54,9 @@ public class TestSerialization {
         targetAction.setEvents(events);
         targetAction.setContext(context);
 
-        String serializedAction = serializeAction(targetAction);
+        String serializedAction = encoder.encode(targetAction);
 
-        Action deserializedAction = deserializeAction(serializedAction);
+        Action deserializedAction = decoder.decode(serializedAction);
         assertNotNull(deserializedAction);
         assertEquals(targetAction.getAccountId(), deserializedAction.getAccountId());
 
@@ -65,5 +66,19 @@ public class TestSerialization {
         assertEquals(2, deserializedAction.getEvents().size());
         assertEquals("v2", deserializedAction.getEvents().get(0).getPayload().get("k2"));
         assertEquals("b2", deserializedAction.getEvents().get(1).getPayload().get("k2"));
+    }
+
+    @Test
+    void deserializeWithV1_0_0() throws Exception {
+        String serializedWithoutRecipients = "{\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"account_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
+        Action deserializedAction = decoder.decode(serializedWithoutRecipients);
+        assertNotNull(deserializedAction);
+        assertEquals("123456-7890", deserializedAction.getContext().get("user_id"));
+        assertEquals("foobar", deserializedAction.getContext().get("user_name"));
+
+        assertEquals(2, deserializedAction.getEvents().size());
+        assertEquals("v2", deserializedAction.getEvents().get(0).getPayload().get("k2"));
+        assertEquals("b2", deserializedAction.getEvents().get(1).getPayload().get("k2"));
+        assertEquals("v1.0.0", deserializedAction.getVersion());
     }
 }

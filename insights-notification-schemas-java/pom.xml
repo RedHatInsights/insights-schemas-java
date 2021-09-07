@@ -102,6 +102,7 @@
                         <configuration>
                             <outputDirectory>${project.build.directory}/generated-sources/avro/</outputDirectory>
                             <sourceDirectory>${project.basedir}/src/main/resources/avro/</sourceDirectory>
+                            <includes>action-latest.avsc</includes>
                         </configuration>
                     </execution>
                 </executions>
@@ -112,10 +113,8 @@
                 <version>1.2</version>
                 <configuration>
                     <originalFile>${project.build.directory}/generated-sources/avro/com/redhat/cloud/notifications/ingress/Action.java</originalFile>
-                    <patchDirectory>src/main/resources/avro</patchDirectory>
-                    <patches>
-                        <patch>Action.java.patch</patch>
-                    </patches>
+                    <patchFile>src/main/resources/avro/patch/Action.java.patch</patchFile>
+                    <strictPatching>true</strictPatching>
                 </configuration>
                 <executions>
                     <execution>
