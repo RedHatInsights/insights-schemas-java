@@ -47,6 +47,27 @@
                 "name": "Metadata",
                 "type": "record",
                 "fields": [
+                  {
+                    "name": "recipients",
+                    "type": [
+                      "null",
+                      {
+                        "name": "Recipients",
+                        "type": "record",
+                        "fields": [
+                          {
+                            "name": "notify_admins",
+                            "type": "boolean"
+                          },
+                          {
+                            "name": "force_send",
+                            "type": "boolean"
+                          }
+                        ]
+                      }
+                    ],
+                    "default": null
+                  }
                 ]
               }
             },
@@ -66,31 +87,6 @@
       "name": "version",
       "type": "string",
       "default": "v1.0.0"
-    },
-    {
-      "name": "recipients",
-      "type": [
-        "null",
-        {
-          "name": "Recipients",
-          "type": "record",
-          "fields": [
-            {
-              "name": "users",
-              "type": { "type": "array", "items": "string" }
-            },
-            {
-              "name": "notify_admins",
-              "type": "boolean"
-            },
-            {
-              "name": "force_send",
-              "type": "boolean"
-            }
-          ]
-        }
-      ],
-      "default": null
     }
   ]
 }
