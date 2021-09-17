@@ -76,11 +76,11 @@
           "type": "record",
           "fields": [
             {
-              "name": "notify_admins",
+              "name": "only_admins",
               "type": "boolean"
             },
             {
-              "name": "force_send",
+              "name": "ignore_user_preferences",
               "type": "boolean"
             }
           ]

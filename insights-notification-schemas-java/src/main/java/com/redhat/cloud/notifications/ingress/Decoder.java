@@ -13,6 +13,7 @@ import org.apache.avro.specific.SpecificData;
 import org.apache.avro.specific.SpecificDatumReader;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Optional;
 
 public class Decoder {
@@ -59,7 +60,7 @@ public class Decoder {
             reader.read(action, jsonDecoder);
             return action;
         } catch (IOException ioException) {
-            throw new RuntimeException("Unable to decode action", ioException);
+            throw new UncheckedIOException("Unable to decode action", ioException);
         } catch (ReflectiveOperationException reflectiveOperationException) {
             throw new RuntimeException("Error while trying to create action class", reflectiveOperationException);
         }
@@ -69,7 +70,7 @@ public class Decoder {
         try {
             return objectMapper.readTree(actionJson).get(VERSION_PROPERTY).asText(DEFAULT_VERSION);
         } catch (IOException ioException) {
-            throw new RuntimeException("Error while reading version", ioException);
+            throw new UncheckedIOException("Error while reading version", ioException);
         } catch (NullPointerException npe) {
             // property does not exist
             return DEFAULT_VERSION;

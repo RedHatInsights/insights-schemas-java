@@ -10,6 +10,7 @@ import org.apache.avro.specific.SpecificDatumWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 
 public class Encoder {
@@ -39,7 +40,7 @@ public class Encoder {
 
             return baos.toString(StandardCharsets.UTF_8);
         } catch (IOException ioException) {
-            throw new RuntimeException("Unable to encode action", ioException);
+            throw new UncheckedIOException("Unable to encode action", ioException);
         }
     }
 }
