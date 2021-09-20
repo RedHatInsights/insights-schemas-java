@@ -69,10 +69,10 @@
     },
     {
       "name": "recipients",
-      "type": [
-        "null",
-        {
-          "name": "Recipients",
+      "type": {
+        "type": "array",
+        "items": {
+          "name": "Recipient",
           "type": "record",
           "fields": [
             {
@@ -85,8 +85,8 @@
             }
           ]
         }
-      ],
-      "default": null
+      },
+      "default": []
     }
   ]
 }

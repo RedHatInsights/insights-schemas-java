@@ -31,6 +31,7 @@ public class TestSerialization {
         targetAction.setTimestamp(LocalDateTime.now());
         targetAction.setEventType("Any");
         targetAction.setAccountId("testTenant");
+        targetAction.setRecipients(List.of());
         Map<String, String> context = new HashMap<>();
         context.put("user_id", "123456-7890");
         context.put("user_name", "foobar");
