@@ -1,5 +1,6 @@
 package com.redhat.cloud.notifications.ingress;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericContainer;
@@ -68,12 +69,14 @@ public class Decoder {
 
     public String getVersion(String actionJson) {
         try {
-            return objectMapper.readTree(actionJson).get(VERSION_PROPERTY).asText(DEFAULT_VERSION);
+            JsonNode versionProperty = objectMapper.readTree(actionJson).get(VERSION_PROPERTY);
+            if (versionProperty == null) {
+                return DEFAULT_VERSION;
+            }
+
+            return versionProperty.asText(DEFAULT_VERSION);
         } catch (IOException ioException) {
             throw new UncheckedIOException("Error while reading version", ioException);
-        } catch (NullPointerException npe) {
-            // property does not exist
-            return DEFAULT_VERSION;
         }
     }
 }
