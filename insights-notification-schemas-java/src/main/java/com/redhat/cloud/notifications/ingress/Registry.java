@@ -4,12 +4,12 @@ import org.apache.avro.Schema;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Registry {
 
-    private final Map<String, Schema> avroSchemas = new ConcurrentHashMap<>();
+    private final Map<String, Schema> avroSchemas = new HashMap<>();
 
     public Schema getSchema(String version) {
         return avroSchemas.computeIfAbsent(version, s -> {
