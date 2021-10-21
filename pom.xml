@@ -4,7 +4,7 @@
 
     <groupId>com.redhat.cloud.common</groupId>
     <artifactId>insights-schemas-java-parent</artifactId>
-    <version>0.4</version>
+    <version>0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Red Hat Insights schemas Java code</name>
