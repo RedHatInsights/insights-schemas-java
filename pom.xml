@@ -39,10 +39,10 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/RedHatInsights/insights-schemas-java.git</connection>
-        <url>scm:git:https://github.com/RedHatInsights/insights-schemas-java.git</url>
-        <developerConnection>scm:git:https://github.com/RedHatInsights/insights-schemas-java.git</developerConnection>
-        <tag>HEAD</tag>
+        <connection>scm:git:ssh://git@github.com/RedHatInsights/insights-schemas-java.git</connection>
+        <url>https://github.com/RedHatInsights/insights-schemas-java.git</url>
+        <developerConnection>scm:git:ssh://git@github.com/RedHatInsights/insights-schemas-java.git</developerConnection>
+        <tag>insights-schemas-java-parent-0.4</tag>
     </scm>
 
     <developers>
