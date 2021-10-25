@@ -41,9 +41,20 @@ inside the `settings` tag or anywhere where it can be activated. Replace with yo
 
 === Doing a release
 
-. Checkout latest code and checkout `master` branch locally.
-. Run the following command: `mvn -Prelease clean install release:prepare release:perform`.
+. Checkout latest code and checkout `master` branch locally. e.g. `git checkout master && git pull`
+. Do a dry run by running the following commands:
 +
+```bash
+mvn clean release:clean
+mvn release:prepare -DdryRun=true
+```
+. If everything worked fine, run the following command to release:
++
+```bash
+mvn clean release:clean
+mvn release:prepare
+mvn release:perform
+```
 It will prompt you with the next versions for the build and snapshot. Defaults are usually fine.
 +
 A new build will start, creating the commits to update and tag the versions accordingly, it will then
