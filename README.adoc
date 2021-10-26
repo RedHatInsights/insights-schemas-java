@@ -42,7 +42,7 @@ inside the `settings` tag or anywhere where it can be activated. Replace with yo
 
 === Doing a release
 
-. Checkout latest code and checkout `master` branch locally. e.g. `git checkout master && git pull`
+. Checkout latest code and checkout `master` branch locally. e.g. `git checkout master && git fetch upstream && git reset --hard upstream/master`
 . Do a dry run by running the following commands:
 +
 [source,bash]
