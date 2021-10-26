@@ -29,7 +29,8 @@ There are no automatic releases at this point. To do a manual release the follow
 Open your maven settings file (usually on `~/.m2/settings.xml`) and add the server and your credentials
 inside the `settings` tag or anywhere where it can be activated. Replace with your username and password.
 
-```xml
+[source,xml]
+----
 <servers>
   <server>
     <id>jboss.staging</id>
@@ -37,24 +38,26 @@ inside the `settings` tag or anywhere where it can be activated. Replace with yo
     <password>nohack</password>
   </server>
 </servers>
-```
+----
 
 === Doing a release
 
 . Checkout latest code and checkout `master` branch locally. e.g. `git checkout master && git pull`
 . Do a dry run by running the following commands:
 +
-```bash
+[source,bash]
+----
 mvn clean release:clean
 mvn release:prepare -DdryRun=true
-```
+----
 . If everything worked fine, run the following command to release:
 +
-```bash
+[source,bash]
+----
 mvn clean release:clean
 mvn release:prepare
 mvn release:perform
-```
+----
 It will prompt you with the next versions for the build and snapshot. Defaults are usually fine.
 +
 A new build will start, creating the commits to update and tag the versions accordingly, it will then
