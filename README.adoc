@@ -13,3 +13,59 @@ Import notification schemas in your java project like:
       <version>0.1-SNAPSHOT</version>
    </dependency>
 ----
+
+== Releasing
+
+There are no automatic releases at this point. To do a manual release the following must be done:
+
+=== Pre-requisites
+
+. Configure your public key for pushing to `github.com`
+. Add your engineering account to maven config (see below)
+  .. The account needs to have permissions for pushing to jboss.staging
+
+=== Adding your engineering account
+
+Open your maven settings file (usually on `~/.m2/settings.xml`) and add the server and your credentials
+inside the `settings` tag or anywhere where it can be activated. Replace with your username and password.
+
+[source,xml]
+----
+<servers>
+  <server>
+    <id>jboss.staging</id>
+    <username>my-engineering-account</username>
+    <password>nohack</password>
+  </server>
+</servers>
+----
+
+=== Doing a release
+
+. Checkout latest code and checkout `master` branch locally. e.g. `git checkout master && git fetch upstream && git reset --hard upstream/master`
+. Do a dry run by running the following commands:
++
+[source,bash]
+----
+mvn clean release:clean
+mvn release:prepare -DdryRun=true
+----
+. If everything worked fine, run the following command to release:
++
+[source,bash]
+----
+mvn clean release:clean
+mvn release:prepare
+mvn release:perform
+----
+It will prompt you with the next versions for the build and snapshot. Defaults are usually fine.
++
+A new build will start, creating the commits to update and tag the versions accordingly, it will then
+try to push the commits.
+If there is any error, you can always retry the command and it should pick up where it left.
+
+. Go to https://repository.jboss.org/nexus/index.html#stagingRepositories.
+  .. Find your build and select it - You can sort by `Updated` to check the newer ones.
+  .. Click on `Close` action and `Confirm`
+  .. Once the process is done (you might need to wait a bit and/or refresh the page) you should be able to select `Release` and `Confirm`. Defaults are OK.
+  .. That's it! Now you have to wait until it reaches Central (could take a while) before you can use it (dependabot PR's might confirm it is available).
