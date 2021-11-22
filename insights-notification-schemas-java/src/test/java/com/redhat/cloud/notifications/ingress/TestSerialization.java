@@ -62,8 +62,10 @@ public class TestSerialization {
         targetAction.setEvents(events);
         targetAction.setContext(context);
 
+        // Encodes with base version
         String serializedAction = encoder.encode(targetAction);
 
+        // Decodes with latest version
         Action deserializedAction = decoder.decode(serializedAction);
         assertNotNull(deserializedAction);
         assertEquals(targetAction.getAccountId(), deserializedAction.getAccountId());
@@ -93,6 +95,40 @@ public class TestSerialization {
     }
 
     @Test
+    void encodeAndDecodeV1_1_0() {
+        Registry registry = new Registry();
+        Encoder encoder = new Encoder();
+        Decoder decoder = new Decoder(registry);
+
+        GenericData.Record action = new GenericData.Record(registry.getSchema("v1.1.0"));
+
+        action.put("bundle", "my bundle");
+        action.put("application", "policies");
+        action.put("event_type", "sent-stuff");
+        action.put("timestamp", "2021-08-24T16:36:31.806149");
+        action.put("account_id", "123456");
+        action.put("context", "{}");
+        action.put("events", List.of());
+        action.put("recipients", List.of());
+        action.put("version", "v1.1.0");
+
+        String encoded = encoder.encode(action);
+
+        System.out.println("encoded:" + encoded);
+
+        GenericRecord decoded = decoder.decode(encoded, "v1.1.0");
+
+        assertEquals("my bundle", decoded.get("bundle").toString());
+        assertEquals("policies", decoded.get("application").toString());
+        assertEquals("sent-stuff", decoded.get("event_type").toString());
+        assertEquals("2021-08-24T16:36:31.806149", decoded.get("timestamp").toString());
+        assertEquals("123456", decoded.get("account_id").toString());
+        assertEquals("{}", decoded.get("context").toString());
+        assertEquals(List.of(), decoded.get("events"));
+        assertEquals("v1.1.0", decoded.get("version").toString());
+    }
+
+    @Test
     void encodeAndDecodeV1_0_0() {
         Registry registry = new Registry();
         Encoder encoder = new Encoder();
@@ -109,7 +145,7 @@ public class TestSerialization {
         action.put("events", List.of());
 
         // This version does not have a "version" field
-        // Assertions.assertThrows(AvroRuntimeException.class, () -> action.put("version", "v1.0.0"));
+        Assertions.assertThrows(AvroRuntimeException.class, () -> action.put("version", "v1.0.0"));
 
         String encoded = encoder.encode(action);
 
@@ -126,7 +162,7 @@ public class TestSerialization {
         assertEquals(List.of(), decoded.get("events"));
 
         // Decoded does not have "version" field
-        Assertions.assertThrows(AvroRuntimeException.class, () -> decoded.put("version", "v1.0.0"));
+        Assertions.assertThrows(AvroRuntimeException.class, () -> decoded.get("version"));
 
     }
 }
