@@ -3,7 +3,6 @@ package com.redhat.cloud.notifications.ingress;
 import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -14,6 +13,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestSerialization {
 
@@ -113,9 +113,6 @@ public class TestSerialization {
         action.put("version", "v1.1.0");
 
         String encoded = encoder.encode(action);
-
-        System.out.println("encoded:" + encoded);
-
         GenericRecord decoded = decoder.decode(encoded, "v1.1.0");
 
         assertEquals("my bundle", decoded.get("bundle").toString());
@@ -145,7 +142,7 @@ public class TestSerialization {
         action.put("events", List.of());
 
         // This version does not have a "version" field
-        Assertions.assertThrows(AvroRuntimeException.class, () -> action.put("version", "v1.0.0"));
+        assertThrows(AvroRuntimeException.class, () -> action.put("version", "v1.0.0"));
 
         String encoded = encoder.encode(action);
 
@@ -162,7 +159,6 @@ public class TestSerialization {
         assertEquals(List.of(), decoded.get("events"));
 
         // Decoded does not have "version" field
-        Assertions.assertThrows(AvroRuntimeException.class, () -> decoded.get("version"));
-
+        assertThrows(AvroRuntimeException.class, () -> decoded.get("version"));
     }
 }
