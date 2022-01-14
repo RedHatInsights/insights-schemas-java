@@ -10,6 +10,7 @@ public class TestRegistry {
         Registry registry = new Registry();
         Assertions.assertNotNull(registry.getSchema("v1.0.0"));
         Assertions.assertNotNull(registry.getSchema("v1.1.0"));
+        Assertions.assertNotNull(registry.getSchema("v1.2.0"));
     }
 
     @Test
