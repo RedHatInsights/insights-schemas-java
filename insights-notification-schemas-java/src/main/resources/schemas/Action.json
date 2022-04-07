@@ -1,0 +1,112 @@
+{
+  "type": "object",
+  "title": "Notification message",
+  "comment": "Generated with https://hellosean1025.github.io/json-schema-visual-editor/",
+  "properties": {
+    "version": {
+      "type": "string",
+      "title": "Version of the notification schema",
+      "default": "v1.0.0"
+    },
+    "bundle": {
+      "type": "string",
+      "title": "Bundle's name",
+      "description": "Bundle name as used during application registration"
+    },
+    "application": {
+      "type": "string",
+      "title": "Application's name",
+      "description": "Application name as used during application registration"
+    },
+    "event_type": {
+      "type": "string",
+      "title": "Event type name",
+      "description": "Event type name as used during application registration"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 formatted date (per platform convention) when the message was sent",
+      "title": "Sent date"
+    },
+    "account_id": {
+      "type": "string",
+      "title": "Account id"
+    },
+    "context": {
+      "type": "object",
+      "properties": {},
+      "description": "Extra information that are common to all the events that are sent in this message.",
+      "title": "Context"
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {},
+            "title": "Event's metadata",
+            "description": "Placeholder for future details we might need"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {},
+            "description": "Your application payload. All the data required by the app to compose the various messages (Email, webhook, etc) after transformation",
+            "title": "Event's payload"
+          }
+        },
+        "title": "Events",
+        "required": [
+          "payload"
+        ]
+      }
+    },
+    "recipients": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "only_admins": {
+            "type": "boolean",
+            "default": false,
+            "title": "Only admins",
+            "description": "Setting to true sends an email to the administrators of the account. Setting to false sends an email to all users of the account. "
+          },
+          "ignore_user_preferences": {
+            "type": "boolean",
+            "default": false,
+            "title": "Ignore user preferences",
+            "description": "Setting to true ignores all the user preferences on this Recipient setting (It doesn't affect other configuration that an Administrator sets on their Notification settings). Setting to false honors the user preferences."
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "Users",
+            "description": "List of users to direct the notification to."
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "Groups",
+            "description": "List o group ids to direct the notification to."
+          }
+        }
+      },
+      "description": "Applications can add extra email recipients by adding entries to this array. This setting extends whatever the Administrators configured in their Notifications settings. This won't override notification's administrator settings - this will extend the settings."
+    }
+  },
+  "required": [
+    "bundle",
+    "application",
+    "event_type",
+    "timestamp",
+    "account_id",
+    "events"
+  ]
+}
