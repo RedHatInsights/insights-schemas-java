@@ -33,6 +33,10 @@
       "type": "string",
       "title": "Account id"
     },
+    "org_id": {
+      "type": "string",
+      "title": "Account id"
+    },
     "context": {
       "type": "object",
       "properties": {},
@@ -42,6 +46,7 @@
     "events": {
       "type": "array",
       "items": {
+        "title": "Events",
         "type": "object",
         "properties": {
           "metadata": {
@@ -57,7 +62,7 @@
             "title": "Event's payload"
           }
         },
-        "title": "Events",
+        "additionalProperties": false,
         "required": [
           "payload"
         ]
@@ -96,11 +101,13 @@
             "title": "Groups",
             "description": "List o group ids to direct the notification to."
           }
-        }
+        },
+        "additionalProperties": false
       },
       "description": "Applications can add extra email recipients by adding entries to this array. This setting extends whatever the Administrators configured in their Notifications settings. This won't override notification's administrator settings - this will extend the settings."
     }
   },
+  "additionalProperties": false,
   "required": [
     "bundle",
     "application",
