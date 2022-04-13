@@ -43,12 +43,7 @@ public class Parser {
         try {
             JsonNode action = objectMapper.readTree(actionJson);
             updateContextAndPayload(action);
-
-            Set<ValidationMessage> errors = jsonSchema.validate(action);
-
-            if (errors.size() > 0) {
-                throw new ParsingException(errors);
-            }
+            validate(action);
 
             return objectMapper.treeToValue(action, Action.class);
         } catch (JsonProcessingException exception) {
@@ -58,9 +53,23 @@ public class Parser {
 
     public static String encode(Action action) {
         try {
-            return objectMapper.writeValueAsString(action);
+            JsonNode asNode = objectMapper.valueToTree(action);
+            validate(asNode);
+
+            return objectMapper.writeValueAsString(asNode);
         } catch (JsonProcessingException exception) {
             throw new UncheckedIOException("Unable to encode action", exception);
+        }
+    }
+
+    public static void validate(Action action) {
+        validate(objectMapper.valueToTree(action));
+    }
+
+    private static void validate(JsonNode action) {
+        Set<ValidationMessage> errors = jsonSchema.validate(action);
+        if (errors.size() > 0) {
+            throw new ParsingException(errors);
         }
     }
 

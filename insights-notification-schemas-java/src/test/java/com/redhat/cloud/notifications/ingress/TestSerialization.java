@@ -58,7 +58,6 @@ public class TestSerialization {
                 .build();
 
         String serializedAction = Parser.encode(targetAction);
-        System.out.println(serializedAction);
         Action deserializedAction = Parser.decode(serializedAction);
 
         assertNotNull(deserializedAction);
@@ -89,19 +88,72 @@ public class TestSerialization {
     void shouldFailWithoutARequiredField() throws JsonProcessingException {
         String template = "{\"recipients\":[], \"bundle\":\"a-bundle\", \"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"account_id\":\"testTenant\",\"org_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
 
+        // required
         testRequiredField("bundle", true, template);
         testRequiredField("application", true, template);
         testRequiredField("event_type", true, template);
         testRequiredField("timestamp", true, template);
         testRequiredField("account_id", true, template);
-        // optional for now
+        testRequiredField("events", true, template);
+        testRequiredField("events.0.payload", true, template);
+
+        // optional
         testRequiredField("org_id", false, template);
         testRequiredField("context", false, template);
-        testRequiredField("events", true, template);
         testRequiredField("events.0.metadata", false, template);
-        testRequiredField("events.0.payload", true, template);
         testRequiredField("recipients", false, template);
+    }
 
+    @Test
+    void serializeShouldFailWithoutRequiredFields() throws JsonProcessingException {
+        Action action = getValidAction();
+        testParserEncode(action, false);
+
+        // required
+        action = getValidAction();
+        action.setBundle(null);
+        testParserEncode(action, true);
+
+        action = getValidAction();
+        action.setApplication(null);
+        testParserEncode(action, true);
+
+        action = getValidAction();
+        action.setEventType(null);
+        testParserEncode(action, true);
+
+        action = getValidAction();
+        action.setTimestamp(null);
+        testParserEncode(action, true);
+
+        action = getValidAction();
+        action.setAccountId(null);
+        testParserEncode(action, true);
+
+        action = getValidAction();
+        action.setEvents(null);
+        testParserEncode(action, true);
+
+        action = getValidAction();
+        action.getEvents().get(0).setPayload(null);
+        testParserEncode(action, true);
+
+        // optional
+        action = getValidAction();
+        action.setOrgId(null);
+        testParserEncode(action, false);
+
+        action = getValidAction();
+        action.setContext(null);
+        testParserEncode(action, false);
+
+        action = getValidAction();
+        action.getEvents().get(0).setMetadata(null);
+        testParserEncode(action, false);
+
+        action = getValidAction();
+        action.setRecipients(null);
+        testParserEncode(action, false);
     }
 
     @Test
@@ -130,6 +182,44 @@ public class TestSerialization {
                         133000000
                 )
         );
+    }
+
+    private Action getValidAction() {
+        return new Action.ActionBuilder()
+                .withAccountId("account-id")
+                .withOrgId("my-org-id")
+                .withBundle("my-bundle")
+                .withApplication("my-app")
+                .withEventType("my-event-type")
+                .withTimestamp(LocalDateTime.now())
+                .withContext(
+                        new Context.ContextBuilder().withAdditionalProperty("foo", "bar").build()
+                )
+                .withRecipients(
+                        List.of(
+                                new Recipient.RecipientBuilder().build()
+                        )
+                )
+                .withEvents(
+                        List.of(
+                                new Event.EventBuilder()
+                                        .withMetadata(new Metadata.MetadataBuilder().build())
+                                        .withPayload(new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("foo", "bar")
+                                                .build())
+                                        .build()
+                        )
+                )
+                .build();
+    }
+
+    private void testParserEncode(Action action, boolean fails) {
+        Executable encoding = () -> Parser.encode(action);
+        if (fails) {
+            assertThrows(ParsingException.class, encoding);
+        } else {
+            assertDoesNotThrow(encoding);
+        }
     }
 
     private void testDate(String stringAsDate, LocalDateTime dateTime) {
