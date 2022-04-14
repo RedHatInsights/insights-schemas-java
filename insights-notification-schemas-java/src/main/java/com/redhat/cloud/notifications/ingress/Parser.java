@@ -36,6 +36,12 @@ public class Parser {
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
+    /**
+     * Validates and decodes the json string to an Action
+     * - Default values are set for supported values (see schema)
+     * @param actionJson json-serialized Action
+     * @return Action valid Action
+     */
     public static Action decode(String actionJson) {
         try {
             JsonNode action = objectMapper.readTree(actionJson);
@@ -48,6 +54,12 @@ public class Parser {
         }
     }
 
+    /**
+     * Validates and encodes an Action to a json-string
+     * - Default values are set for supported values (see schema)
+     * @param action Action to be encoded
+     * @return String json-serialized action.
+     */
     public static String encode(Action action) {
         try {
             JsonNode asNode = objectMapper.valueToTree(action);
@@ -59,6 +71,10 @@ public class Parser {
         }
     }
 
+    /**
+     * Validates action and ensures all the values conform to the schema.
+     * @param action to be validated
+     */
     public static void validate(Action action) {
         validate(objectMapper.valueToTree(action));
     }
