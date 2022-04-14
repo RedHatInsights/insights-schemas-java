@@ -7,21 +7,21 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.networknt.schema.ApplyDefaultsStrategy;
 import com.networknt.schema.JsonMetaSchema;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion;
-import com.networknt.schema.ValidationMessage;
 import com.networknt.schema.ValidatorTypeCode;
+import com.networknt.schema.ValidationResult;
 import com.redhat.cloud.notifications.validator.LocalDateTimeValidator;
 
 import java.io.UncheckedIOException;
-import java.util.Set;
 
 public class Parser {
 
     private final static ObjectMapper objectMapper = new ObjectMapper();
-    private final static JsonSchemaFactory jsonSchemaFactory;
     private final static JsonSchema jsonSchema;
 
     private final static String CONTEXT_FIELD = "context";
@@ -29,10 +29,7 @@ public class Parser {
     private final static String PAYLOAD_FIELD = "payload";
 
     static {
-        jsonSchemaFactory = jsonSchemaFactory();
-        jsonSchema = jsonSchemaFactory.getSchema(
-                Parser.class.getResourceAsStream("/schemas/Action.json")
-        );
+        jsonSchema = getJsonSchema();
 
         // Provides LocalDateTime support
         objectMapper.registerModule(new JavaTimeModule());
@@ -67,9 +64,10 @@ public class Parser {
     }
 
     private static void validate(JsonNode action) {
-        Set<ValidationMessage> errors = jsonSchema.validate(action);
-        if (errors.size() > 0) {
-            throw new ParsingException(errors);
+        ValidationResult result = jsonSchema.walk(action, true);
+
+        if (result.getValidationMessages().size() > 0) {
+            throw new ParsingException(result.getValidationMessages());
         }
     }
 
@@ -96,18 +94,32 @@ public class Parser {
         }
     }
 
+    private static JsonSchema getJsonSchema() {
+        SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
+        schemaValidatorsConfig.setApplyDefaultsStrategy(new ApplyDefaultsStrategy(
+                true,
+                true,
+                true
+        ));
+
+        return jsonSchemaFactory().getSchema(
+                Parser.class.getResourceAsStream("/schemas/Action.json"),
+                schemaValidatorsConfig
+        );
+    }
+
     private static JsonSchemaFactory jsonSchemaFactory() {
         String ID = "$id";
 
-        JsonMetaSchema overrideEmailValidatorMetaSchema = new JsonMetaSchema.Builder(JsonMetaSchema.getV7().getUri())
+        JsonMetaSchema overrideDateTimeValidator = new JsonMetaSchema.Builder(JsonMetaSchema.getV7().getUri())
                 .idKeyword(ID)
                 .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V7))
                 .addFormats(JsonMetaSchema.COMMON_BUILTIN_FORMATS)
                 .addFormat(new LocalDateTimeValidator())
                 .build();
 
-        return new JsonSchemaFactory.Builder().defaultMetaSchemaURI(overrideEmailValidatorMetaSchema.getUri())
-                .addMetaSchema(overrideEmailValidatorMetaSchema)
+        return new JsonSchemaFactory.Builder().defaultMetaSchemaURI(overrideDateTimeValidator.getUri())
+                .addMetaSchema(overrideDateTimeValidator)
                 .build();
 
     }

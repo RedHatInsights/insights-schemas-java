@@ -81,7 +81,7 @@ public class TestSerialization {
         assertEquals(2, deserializedAction.getEvents().size());
         assertEquals("v2", deserializedAction.getEvents().get(0).getPayload().getAdditionalProperties().get("k2"));
         assertEquals("b2", deserializedAction.getEvents().get(1).getPayload().getAdditionalProperties().get("k2"));
-        assertEquals("v1.0.0", deserializedAction.getVersion());
+        assertEquals("2.0.0", deserializedAction.getVersion());
     }
 
     @Test
@@ -104,8 +104,35 @@ public class TestSerialization {
         testRequiredField("recipients", false, template);
     }
 
+     @Test
+     void shouldHaveDefaultValuesWhenNotSet() {
+         Action action = getValidAction();
+         action.setContext(null);
+         action.setRecipients(null);
+         action.setVersion(null);
+
+         Action otherAction = Parser.decode(Parser.encode(action));
+
+         assertNotNull(otherAction.getContext());
+         assertNotNull(otherAction.getRecipients());
+         assertEquals("2.0.0", otherAction.getVersion());
+
+         action = getValidAction();
+         action.getRecipients().get(0).setIgnoreUserPreferences(null);
+         action.getRecipients().get(0).setOnlyAdmins(null);
+         action.getRecipients().get(0).setGroups(null);
+         action.getRecipients().get(0).setUsers(null);
+
+         otherAction = Parser.decode(Parser.encode(action));
+
+         assertEquals(Boolean.FALSE, otherAction.getRecipients().get(0).getIgnoreUserPreferences());
+         assertEquals(Boolean.FALSE, otherAction.getRecipients().get(0).getOnlyAdmins());
+         assertEquals(List.of(), otherAction.getRecipients().get(0).getGroups());
+         assertEquals(List.of(), otherAction.getRecipients().get(0).getUsers());
+     }
+
     @Test
-    void serializeShouldFailWithoutRequiredFields() throws JsonProcessingException {
+    void shouldFailWithoutRequiredFieldsWhenSerializing() throws JsonProcessingException {
         Action action = getValidAction();
         testParserEncode(action, false);
 
