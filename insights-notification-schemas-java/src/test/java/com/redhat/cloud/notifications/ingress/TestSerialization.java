@@ -211,6 +211,28 @@ public class TestSerialization {
         );
     }
 
+    @Test
+    void shouldHaveAccountIdAndOrgIdIsOptional() {
+        Action action = getValidAction();
+
+        action.setAccountId(null);
+        action.setOrgId(null);
+        assertThrows(ParsingException.class, () -> Parser.validate(action));
+
+        action.setAccountId("foo");
+        action.setOrgId(null);
+        assertDoesNotThrow(() -> Parser.validate(action));
+
+        action.setAccountId(null);
+        action.setOrgId("foo");
+        // Once we support org_id, this wont fail anymore.
+        assertThrows(ParsingException.class, () -> Parser.validate(action));
+
+        action.setAccountId("foo");
+        action.setOrgId("foo");
+        assertDoesNotThrow(() -> Parser.validate(action));
+    }
+
     private Action getValidAction() {
         return new Action.ActionBuilder()
                 .withAccountId("account-id")
