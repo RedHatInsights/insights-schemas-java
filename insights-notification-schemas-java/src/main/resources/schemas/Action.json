@@ -27,21 +27,21 @@
       "type": "string",
       "format": "date-time",
       "description": "ISO-8601 formatted date (per platform convention) when the message was sent",
-      "title": "Sent date"
+      "title": "Sent timestamp"
     },
     "account_id": {
       "type": "string",
-      "title": "Account id"
+      "title": "Account's id"
     },
     "org_id": {
       "type": "string",
-      "title": "Account id"
+      "title": "Organization's id"
     },
     "context": {
       "type": "object",
       "default": {},
       "properties": {},
-      "description": "Extra information that are common to all the events that are sent in this message.",
+      "description": "Extra information common to all events sent.",
       "title": "Context"
     },
     "events": {
