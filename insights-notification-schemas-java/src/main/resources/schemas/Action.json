@@ -15,7 +15,7 @@
     },
     "application": {
       "type": "string",
-      "title": "Application's name",
+      "title": "Application name",
       "description": "Application name as used during application registration"
     },
     "event_type": {
@@ -31,11 +31,11 @@
     },
     "account_id": {
       "type": "string",
-      "title": "Account's id"
+      "title": "Account id"
     },
     "org_id": {
       "type": "string",
-      "title": "Organization's id"
+      "title": "Organization id"
     },
     "context": {
       "type": "object",
@@ -60,7 +60,7 @@
             "type": "object",
             "properties": {},
             "description": "Your application payload. All the data required by the app to compose the various messages (Email, webhook, etc) after transformation",
-            "title": "Event's payload"
+            "title": "Event payload"
           }
         },
         "additionalProperties": false,
@@ -79,13 +79,13 @@
             "type": "boolean",
             "default": false,
             "title": "Only admins",
-            "description": "Setting to true sends an email to the administrators of the account. Setting to false sends an email to all users of the account."
+            "description": "Setting to true sends an email to the administrators of the account. Setting to false sends an email to all users of the account. Note that this does not ignore the user preferences."
           },
           "ignore_user_preferences": {
             "type": "boolean",
             "default": false,
             "title": "Ignore user preferences",
-            "description": "Setting to true ignores all the user preferences on this Recipient setting (It doesn't affect other configuration that an Administrator sets on their Notification settings). Setting to false honors the user preferences."
+            "description": "Setting to true ignores all the user preferences on this Recipient setting (It doesn't affect other configuration that an Administrator sets on their Notification settings). Setting to false (default) honors the user preferences."
           },
           "users": {
             "type": "array",
@@ -94,7 +94,7 @@
               "type": "string"
             },
             "title": "Users",
-            "description": "List of users to direct the notification to."
+            "description": "List of users to direct the notification to. Note that this does not ignore the user preferences."
           },
           "groups": {
             "type": "array",
@@ -103,7 +103,7 @@
               "type": "string"
             },
             "title": "Groups",
-            "description": "List of group ids to direct the notification to."
+            "description": "List of group ids to direct the notification to. Note that this does not ignore the user preferences."
           }
         },
         "additionalProperties": false
