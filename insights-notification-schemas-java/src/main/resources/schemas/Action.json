@@ -10,7 +10,7 @@
     },
     "bundle": {
       "type": "string",
-      "title": "Bundle's name",
+      "title": "Bundle name",
       "description": "Bundle name as used during application registration"
     },
     "application": {
@@ -79,7 +79,7 @@
             "type": "boolean",
             "default": false,
             "title": "Only admins",
-            "description": "Setting to true sends an email to the administrators of the account. Setting to false sends an email to all users of the account. "
+            "description": "Setting to true sends an email to the administrators of the account. Setting to false sends an email to all users of the account."
           },
           "ignore_user_preferences": {
             "type": "boolean",
@@ -103,7 +103,7 @@
               "type": "string"
             },
             "title": "Groups",
-            "description": "List o group ids to direct the notification to."
+            "description": "List of group ids to direct the notification to."
           }
         },
         "additionalProperties": false
