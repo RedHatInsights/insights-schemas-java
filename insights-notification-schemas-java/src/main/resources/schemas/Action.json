@@ -26,7 +26,7 @@
     "timestamp": {
       "type": "string",
       "format": "date-time",
-      "description": "ISO-8601 formatted date (per platform convention) when the message was sent",
+      "description": "ISO-8601 formatted date (per platform convention) when the message was sent in UTC. Dates with timezones/offsets are rejected.",
       "title": "Sent timestamp"
     },
     "account_id": {

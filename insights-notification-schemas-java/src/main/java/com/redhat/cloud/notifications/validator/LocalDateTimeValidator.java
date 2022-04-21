@@ -4,6 +4,8 @@ import com.networknt.schema.Format;
 
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 
 public class LocalDateTimeValidator implements Format {
 
@@ -15,9 +17,12 @@ public class LocalDateTimeValidator implements Format {
     }
 
     @Override
-    public boolean matches(String s) {
+    public boolean matches(String text) {
         try {
-            DateTimeFormatter.ISO_DATE_TIME.parse(s);
+            TemporalAccessor temporalAccessor = DateTimeFormatter.ISO_DATE_TIME.parse(text);
+            if (temporalAccessor.isSupported(ChronoField.OFFSET_SECONDS)) {
+                return temporalAccessor.get(ChronoField.OFFSET_SECONDS) == 0;
+            }
             return true;
         } catch (DateTimeParseException exception) {
             message = exception.getMessage();

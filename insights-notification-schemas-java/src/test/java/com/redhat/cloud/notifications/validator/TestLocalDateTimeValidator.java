@@ -8,12 +8,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class TestLocalDateTimeValidator {
 
     @Test
-    void shouldParseIsoDates() {
+    void shouldMatchIsoDates() {
         LocalDateTimeValidator validator = new LocalDateTimeValidator();
 
         assertTrue(validator.matches("2020-07-14T13:22:10.133"));
         assertTrue(validator.matches("2020-07-14T13:22:10"));
         assertTrue(validator.matches("2020-07-14T13:22:10Z"));
+
+        // Offsets
+        assertFalse(validator.matches("2011-12-03T10:15:30+01:00[Europe/Paris]"));
+        assertFalse(validator.matches("2011-12-03T10:15:30[Europe/Paris]"));
+        assertFalse(validator.matches("2011-12-03T10:15:30+01:00"));
 
         // Week format
         assertFalse(validator.matches("2007-W44-6T16:18:05Z"));
