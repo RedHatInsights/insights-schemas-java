@@ -27,7 +27,7 @@
         <avro.version>1.11.0</avro.version>
         <junit.version>5.8.2</junit.version>
         <checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
-        <javadoc.plugin.version>3.3.2</javadoc.plugin.version>
+        <javadoc.plugin.version>3.4.0</javadoc.plugin.version>
         <jackson.version>2.13.2</jackson.version>
         <json-schema-validator.version>1.0.68</json-schema-validator.version>
     </properties>
