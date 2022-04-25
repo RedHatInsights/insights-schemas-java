@@ -49,7 +49,6 @@
                     <targetPackage>com.redhat.cloud.notifications.ingress</targetPackage>
                     <generateBuilders>true</generateBuilders>
                     <useInnerClassBuilders>true</useInnerClassBuilders>
-                    <includeDynamicBuilders>false</includeDynamicBuilders>
                     <dateTimeType>java.time.LocalDateTime</dateTimeType>
                 </configuration>
                 <executions>
