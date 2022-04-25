@@ -21,6 +21,7 @@ public class LocalDateTimeValidator implements Format {
         try {
             TemporalAccessor temporalAccessor = DateTimeFormatter.ISO_DATE_TIME.parse(text);
             if (temporalAccessor.isSupported(ChronoField.OFFSET_SECONDS)) {
+                // Dates and times have to be expressed in UTC. Values with an offset are considered invalid.
                 return temporalAccessor.get(ChronoField.OFFSET_SECONDS) == 0;
             }
             return true;

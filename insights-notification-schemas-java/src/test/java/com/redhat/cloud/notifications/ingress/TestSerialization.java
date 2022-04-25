@@ -308,6 +308,11 @@ public class TestSerialization {
         return node.get(field);
     }
 
+    /**
+     * This method removes a field from a valid template and checks one of these two cases:
+     - if {@code isRequired} is true, the field removal should trigger an exception throw when the template is decoded
+     - otherwise, the field removal should not cause any exception during the decoding as the field is expected to be optional 
+     */
     private void testRequiredField(String field, boolean isRequired, String template) throws JsonProcessingException {
         JsonNode base = objectMapper.readTree(template);
         String[] steps = field.split("\\.");
