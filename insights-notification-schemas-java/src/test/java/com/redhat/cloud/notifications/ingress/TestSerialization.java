@@ -1,164 +1,347 @@
 package com.redhat.cloud.notifications.ingress;
 
-import org.apache.avro.AvroRuntimeException;
-import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestSerialization {
 
+    ObjectMapper objectMapper = new ObjectMapper();
+
     @Test
     void testActionSerialization() {
-
-        Registry registry = new Registry();
-        Decoder decoder = new Decoder(registry);
-        Encoder encoder = new Encoder();
-
-        Action targetAction = new Action();
-        targetAction.setVersion("v1.1.0");
-        targetAction.setBundle("my-bundle");
-        targetAction.setApplication("Policies");
-        targetAction.setTimestamp(LocalDateTime.now());
-        targetAction.setEventType("Any");
-        targetAction.setAccountId("testTenant");
-        targetAction.setRecipients(List.of());
-        Map<String, String> context = new HashMap<>();
-        context.put("user_id", "123456-7890");
-        context.put("user_name", "foobar");
-
-        Map<String, String> payload1 = new HashMap<>();
-        payload1.put("k", "v");
-        payload1.put("k2", "v2");
-        payload1.put("k3", "v");
-
-        Map<String, String> payload2 = new HashMap<>();
-        payload2.put("k", "b");
-        payload2.put("k2", "b2");
-        payload2.put("k3", "b");
-
-        ArrayList<Event> events = new ArrayList<>();
-        Event event1 = Event.newBuilder()
-                .setMetadata(Metadata.newBuilder().build())
-                .setPayload(payload1)
-                .build();
-        Event event2 = Event.newBuilder()
-                .setMetadata(Metadata.newBuilder().build())
-                .setPayload(payload2)
+        Action targetAction = new Action.ActionBuilder()
+                .withVersion("v1.1.0")
+                .withBundle("my-bundle")
+                .withApplication("Policies")
+                .withTimestamp(LocalDateTime.now())
+                .withEventType("Any")
+                .withAccountId("testTenant")
+                .withContext(
+                        new Context.ContextBuilder()
+                                .withAdditionalProperty("user_id", "123456-7890")
+                                .withAdditionalProperty("user_name", "foobar")
+                                .build()
+                )
+                .withEvents(List.of(
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "v")
+                                                .withAdditionalProperty("k2", "v2")
+                                                .withAdditionalProperty("k3", "v")
+                                                .build()
+                                ).build(),
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "b")
+                                                .withAdditionalProperty("k2", "b2")
+                                                .withAdditionalProperty("k3", "b")
+                                                .build()
+                                ).build()
+                ))
                 .build();
 
-        events.add(event1);
-        events.add(event2);
+        String serializedAction = Parser.encode(targetAction);
+        Action deserializedAction = Parser.decode(serializedAction);
 
-        targetAction.setEvents(events);
-        targetAction.setContext(context);
-
-        // Encodes with base version
-        String serializedAction = encoder.encode(targetAction);
-
-        // Decodes with latest version
-        Action deserializedAction = decoder.decode(serializedAction);
         assertNotNull(deserializedAction);
         assertEquals(targetAction.getAccountId(), deserializedAction.getAccountId());
-
-        assertEquals("123456-7890", deserializedAction.getContext().get("user_id"));
-        assertEquals("foobar", deserializedAction.getContext().get("user_name"));
+        assertEquals("123456-7890", deserializedAction.getContext().getAdditionalProperties().get("user_id"));
+        assertEquals("foobar", deserializedAction.getContext().getAdditionalProperties().get("user_name"));
 
         assertEquals(2, deserializedAction.getEvents().size());
-        assertEquals("v2", deserializedAction.getEvents().get(0).getPayload().get("k2"));
-        assertEquals("b2", deserializedAction.getEvents().get(1).getPayload().get("k2"));
+        assertEquals("v2", deserializedAction.getEvents().get(0).getPayload().getAdditionalProperties().get("k2"));
+        assertEquals("b2", deserializedAction.getEvents().get(1).getPayload().getAdditionalProperties().get("k2"));
     }
 
     @Test
-    void deserializeWithV1_0_0() {
-        Registry registry = new Registry();
-        Decoder decoder = new Decoder(registry);
+    void deserializeWithStringContextAndPayload() {
         String serializedWithoutRecipients = "{\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"account_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
-        Action deserializedAction = decoder.decode(serializedWithoutRecipients);
+        Action deserializedAction = Parser.decode(serializedWithoutRecipients);
         assertNotNull(deserializedAction);
-        assertEquals("123456-7890", deserializedAction.getContext().get("user_id"));
-        assertEquals("foobar", deserializedAction.getContext().get("user_name"));
+        assertEquals("123456-7890", deserializedAction.getContext().getAdditionalProperties().get("user_id"));
+        assertEquals("foobar", deserializedAction.getContext().getAdditionalProperties().get("user_name"));
 
         assertEquals(2, deserializedAction.getEvents().size());
-        assertEquals("v2", deserializedAction.getEvents().get(0).getPayload().get("k2"));
-        assertEquals("b2", deserializedAction.getEvents().get(1).getPayload().get("k2"));
-        assertEquals("v1.0.0", deserializedAction.getVersion());
+        assertEquals("v2", deserializedAction.getEvents().get(0).getPayload().getAdditionalProperties().get("k2"));
+        assertEquals("b2", deserializedAction.getEvents().get(1).getPayload().getAdditionalProperties().get("k2"));
+        assertEquals("2.0.0", deserializedAction.getVersion());
     }
 
     @Test
-    void encodeAndDecodeV1_1_0() {
-        Registry registry = new Registry();
-        Encoder encoder = new Encoder();
-        Decoder decoder = new Decoder(registry);
+    void shouldFailWithoutARequiredField() throws JsonProcessingException {
+        String template = "{\"recipients\":[], \"bundle\":\"a-bundle\", \"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"account_id\":\"testTenant\",\"org_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
 
-        GenericData.Record action = new GenericData.Record(registry.getSchema("v1.1.0"));
+        // required
+        testRequiredField("bundle", true, template);
+        testRequiredField("application", true, template);
+        testRequiredField("event_type", true, template);
+        testRequiredField("timestamp", true, template);
+        testRequiredField("account_id", true, template);
+        testRequiredField("events", true, template);
+        testRequiredField("events.0.payload", true, template);
 
-        action.put("bundle", "my bundle");
-        action.put("application", "policies");
-        action.put("event_type", "sent-stuff");
-        action.put("timestamp", "2021-08-24T16:36:31.806149");
-        action.put("account_id", "123456");
-        action.put("context", "{}");
-        action.put("events", List.of());
-        action.put("recipients", List.of());
-        action.put("version", "v1.1.0");
+        // optional
+        testRequiredField("org_id", false, template);
+        testRequiredField("context", false, template);
+        testRequiredField("events.0.metadata", false, template);
+        testRequiredField("recipients", false, template);
+    }
 
-        String encoded = encoder.encode(action);
-        GenericRecord decoded = decoder.decode(encoded, "v1.1.0");
+     @Test
+     void shouldHaveDefaultValuesWhenNotSet() {
+         Action action = getValidAction();
+         action.setContext(null);
+         action.setRecipients(null);
+         action.setVersion(null);
 
-        assertEquals("my bundle", decoded.get("bundle").toString());
-        assertEquals("policies", decoded.get("application").toString());
-        assertEquals("sent-stuff", decoded.get("event_type").toString());
-        assertEquals("2021-08-24T16:36:31.806149", decoded.get("timestamp").toString());
-        assertEquals("123456", decoded.get("account_id").toString());
-        assertEquals("{}", decoded.get("context").toString());
-        assertEquals(List.of(), decoded.get("events"));
-        assertEquals("v1.1.0", decoded.get("version").toString());
+         Action otherAction = Parser.decode(Parser.encode(action));
+
+         assertNotNull(otherAction.getContext());
+         assertNotNull(otherAction.getRecipients());
+         assertEquals("2.0.0", otherAction.getVersion());
+
+         action = getValidAction();
+         action.getRecipients().get(0).setIgnoreUserPreferences(null);
+         action.getRecipients().get(0).setOnlyAdmins(null);
+         action.getRecipients().get(0).setGroups(null);
+         action.getRecipients().get(0).setUsers(null);
+
+         otherAction = Parser.decode(Parser.encode(action));
+
+         assertEquals(Boolean.FALSE, otherAction.getRecipients().get(0).getIgnoreUserPreferences());
+         assertEquals(Boolean.FALSE, otherAction.getRecipients().get(0).getOnlyAdmins());
+         assertEquals(List.of(), otherAction.getRecipients().get(0).getGroups());
+         assertEquals(List.of(), otherAction.getRecipients().get(0).getUsers());
+     }
+
+    @Test
+    void shouldFailWithoutRequiredFieldsWhenSerializing() throws JsonProcessingException {
+        Action action = getValidAction();
+        testParserEncode(action, false);
+
+        // required
+        action = getValidAction();
+        action.setBundle(null);
+        testParserEncode(action, true);
+
+        action = getValidAction();
+        action.setApplication(null);
+        testParserEncode(action, true);
+
+        action = getValidAction();
+        action.setEventType(null);
+        testParserEncode(action, true);
+
+        action = getValidAction();
+        action.setTimestamp(null);
+        testParserEncode(action, true);
+
+        action = getValidAction();
+        action.setAccountId(null);
+        testParserEncode(action, true);
+
+        action = getValidAction();
+        action.setEvents(null);
+        testParserEncode(action, true);
+
+        action = getValidAction();
+        action.getEvents().get(0).setPayload(null);
+        testParserEncode(action, true);
+
+        // optional
+        action = getValidAction();
+        action.setOrgId(null);
+        testParserEncode(action, false);
+
+        action = getValidAction();
+        action.setContext(null);
+        testParserEncode(action, false);
+
+        action = getValidAction();
+        action.getEvents().get(0).setMetadata(null);
+        testParserEncode(action, false);
+
+        action = getValidAction();
+        action.setRecipients(null);
+        testParserEncode(action, false);
     }
 
     @Test
-    void encodeAndDecodeV1_0_0() {
-        Registry registry = new Registry();
-        Encoder encoder = new Encoder();
-        Decoder decoder = new Decoder(registry);
+    void shouldDeserializeISO8601Dates() {
+        testDate(
+                "2020-07-14T13:22:10Z",
+                LocalDateTime.of(
+                        2020,
+                        7,
+                        14,
+                        13,
+                        22,
+                        10
+                )
+        );
 
-        GenericData.Record action = new GenericData.Record(registry.getSchema("v1.0.0"));
-
-        action.put("bundle", "my bundle");
-        action.put("application", "policies");
-        action.put("event_type", "sent-stuff");
-        action.put("timestamp", "2021-08-24T16:36:31.806149");
-        action.put("account_id", "123456");
-        action.put("context", "{}");
-        action.put("events", List.of());
-
-        // This version does not have a "version" field
-        assertThrows(AvroRuntimeException.class, () -> action.put("version", "v1.0.0"));
-
-        String encoded = encoder.encode(action);
-
-        System.out.println("encoded:" + encoded);
-
-        GenericRecord decoded = decoder.decode(encoded, "v1.0.0");
-
-        assertEquals("my bundle", decoded.get("bundle").toString());
-        assertEquals("policies", decoded.get("application").toString());
-        assertEquals("sent-stuff", decoded.get("event_type").toString());
-        assertEquals("2021-08-24T16:36:31.806149", decoded.get("timestamp").toString());
-        assertEquals("123456", decoded.get("account_id").toString());
-        assertEquals("{}", decoded.get("context").toString());
-        assertEquals(List.of(), decoded.get("events"));
-
-        // Decoded does not have "version" field
-        assertThrows(AvroRuntimeException.class, () -> decoded.get("version"));
+        testDate(
+                "2020-07-14T13:22:10.133",
+                LocalDateTime.of(
+                        2020,
+                        7,
+                        14,
+                        13,
+                        22,
+                        10,
+                        133000000
+                )
+        );
     }
+
+    @Test
+    void shouldHaveAccountIdAndOrgIdIsOptional() {
+        Action action = getValidAction();
+
+        action.setAccountId(null);
+        action.setOrgId(null);
+        assertThrows(ParsingException.class, () -> Parser.validate(action));
+
+        action.setAccountId("foo");
+        action.setOrgId(null);
+        assertDoesNotThrow(() -> Parser.validate(action));
+
+        action.setAccountId(null);
+        action.setOrgId("foo");
+        // Once we support org_id, this wont fail anymore.
+        assertThrows(ParsingException.class, () -> Parser.validate(action));
+
+        action.setAccountId("foo");
+        action.setOrgId("foo");
+        assertDoesNotThrow(() -> Parser.validate(action));
+    }
+
+    private Action getValidAction() {
+        return new Action.ActionBuilder()
+                .withAccountId("account-id")
+                .withOrgId("my-org-id")
+                .withBundle("my-bundle")
+                .withApplication("my-app")
+                .withEventType("my-event-type")
+                .withTimestamp(LocalDateTime.now())
+                .withContext(
+                        new Context.ContextBuilder().withAdditionalProperty("foo", "bar").build()
+                )
+                .withRecipients(
+                        List.of(
+                                new Recipient.RecipientBuilder().build()
+                        )
+                )
+                .withEvents(
+                        List.of(
+                                new Event.EventBuilder()
+                                        .withMetadata(new Metadata.MetadataBuilder().build())
+                                        .withPayload(new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("foo", "bar")
+                                                .build())
+                                        .build()
+                        )
+                )
+                .build();
+    }
+
+    private void testParserEncode(Action action, boolean fails) {
+        Executable encoding = () -> Parser.encode(action);
+        if (fails) {
+            assertThrows(ParsingException.class, encoding);
+        } else {
+            assertDoesNotThrow(encoding);
+        }
+    }
+
+    private void testDate(String stringAsDate, LocalDateTime dateTime) {
+        String serialized = String.format(
+                "{\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"%s\",\"account_id\":\"testTenant\",\"context\":{},\"events\":[]}\n",
+                stringAsDate
+        );
+        assertEquals(
+                dateTime,
+                Parser.decode(serialized).getTimestamp()
+        );
+    }
+
+    private Optional<Integer> getInteger(String string) {
+        try {
+            return Optional.of(Integer.parseInt(string));
+        } catch (NumberFormatException nfe) {
+            return Optional.empty();
+        }
+    }
+
+    private boolean hasField(JsonNode node, String field) {
+        Optional<Integer> numericField = getInteger(field);
+        if (numericField.isPresent()) {
+            return node.has(numericField.get());
+        }
+
+        return node.has(field);
+    }
+
+    private JsonNode getField(JsonNode node, String field) {
+        Optional<Integer> numericField = getInteger(field);
+        if (numericField.isPresent()) {
+            return node.get(numericField.get());
+        }
+
+        return node.get(field);
+    }
+
+    /**
+     * This method removes a field from a valid template and checks one of these two cases:
+     - if {@code isRequired} is true, the field removal should trigger an exception throw when the template is decoded
+     - otherwise, the field removal should not cause any exception during the decoding as the field is expected to be optional 
+     */
+    private void testRequiredField(String field, boolean isRequired, String template) throws JsonProcessingException {
+        JsonNode base = objectMapper.readTree(template);
+        String[] steps = field.split("\\.");
+
+        JsonNode node = base;
+        for (int i = 0; i < steps.length; i++) {
+            String step = steps[i];
+
+            if (!hasField(node, step)) {
+                throw new RuntimeException("Field " + field + " does not exist in the template - unable to remove it. Current step " + step);
+            }
+
+            if (i == steps.length - 1) {
+                ((ObjectNode)node).remove(step);
+            } else {
+                node = getField(node, step);
+            }
+        }
+
+        String serialized = objectMapper.writeValueAsString(base);
+
+        Executable parsing = () -> Parser.decode(serialized);
+
+        if (isRequired) {
+            assertThrows(ParsingException.class, parsing);
+        } else {
+            assertDoesNotThrow(parsing);
+        }
+
+    }
+
 }
