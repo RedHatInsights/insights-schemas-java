@@ -79,7 +79,30 @@ public class Parser {
         validate(objectMapper.valueToTree(action));
     }
 
-    private static void validate(JsonNode action) {
+    /**
+     * Validates action and ensures all the values conform to the schema.
+     * @param actionJson string of json encoded action to be validated
+     *                   Note that this validate does not perform the string-to-json of
+     *                   the context and events[*].payload fields and are reported as
+     *                   errors.
+     */
+    public static void validate(String actionJson) {
+        try {
+            JsonNode action = objectMapper.readTree(actionJson);
+            validate(action);
+        } catch (JsonProcessingException exception) {
+            throw new UncheckedIOException("Unable to decode action", exception);
+        }
+    }
+
+    /**
+     * Validates action and ensures all the values conform to the schema.
+     * @param action JsonNode to be validated
+     *                   Note that this validate does not perform the string-to-json of
+     *                   the context and events[*].payload fields and are reported as
+     *                   errors.
+     */
+    public static void validate(JsonNode action) {
         ValidationResult result = jsonSchema.walk(action, true);
 
         if (result.getValidationMessages().size() > 0) {
