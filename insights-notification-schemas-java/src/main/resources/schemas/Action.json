@@ -1,7 +1,7 @@
 {
   "type": "object",
   "title": "Notification message",
-  "comment": "Generated with https://hellosean1025.github.io/json-schema-visual-editor/",
+  "$comment": "Generated with https://hellosean1025.github.io/json-schema-visual-editor/",
   "properties": {
     "version": {
       "type": "string",
@@ -63,7 +63,8 @@
             "title": "Event payload"
           }
         },
-        "additionalProperties": false,
+        "$comment": "Accepting additional properties because one tenant is sending them at this level - should be removed once the tenant updates.",
+        "additionalProperties": true,
         "required": [
           "payload"
         ]
