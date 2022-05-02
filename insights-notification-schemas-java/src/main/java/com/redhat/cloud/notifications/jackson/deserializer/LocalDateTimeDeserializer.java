@@ -13,11 +13,21 @@ import java.time.temporal.TemporalAccessor;
 
 public class LocalDateTimeDeserializer extends JsonDeserializer<LocalDateTime> {
 
+    private DateTimeFormatter formatter;
+
+    public LocalDateTimeDeserializer(boolean relaxed) {
+        // One of the tenants is sending the datetime with a 0-offset - ISO_LOCAL_DATE_TIME fails to parse it.
+        if (relaxed) {
+            formatter = DateTimeFormatter.ISO_DATE_TIME;
+        } else {
+            formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        }
+    }
+
     @Override
     public LocalDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
         if (jsonParser.hasTokenId(JsonTokenId.ID_STRING)) {
-            // One of the tenants is sending the datetime with a 0-offset - ISO_LOCAL_DATE_TIME fails to parse it.
-            TemporalAccessor temporalAccessor = DateTimeFormatter.ISO_DATE_TIME.parse(jsonParser.getText());
+            TemporalAccessor temporalAccessor = formatter.parse(jsonParser.getText());
             return LocalDateTime.from(temporalAccessor);
         }
 

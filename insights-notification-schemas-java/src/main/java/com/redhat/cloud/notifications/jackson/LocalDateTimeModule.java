@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 
 public class LocalDateTimeModule extends SimpleModule {
 
-    public LocalDateTimeModule() {
-        addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
+    public LocalDateTimeModule(boolean relaxed) {
+        addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(relaxed));
         addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
     }
 
