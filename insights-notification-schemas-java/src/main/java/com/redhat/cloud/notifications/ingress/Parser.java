@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.networknt.schema.ApplyDefaultsStrategy;
 import com.networknt.schema.JsonMetaSchema;
 import com.networknt.schema.JsonSchema;
@@ -15,6 +14,7 @@ import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidatorTypeCode;
 import com.networknt.schema.ValidationResult;
+import com.redhat.cloud.notifications.jackson.LocalDateTimeModule;
 import com.redhat.cloud.notifications.validator.LocalDateTimeValidator;
 
 import java.io.UncheckedIOException;
@@ -30,9 +30,7 @@ public class Parser {
 
     static {
         jsonSchema = getJsonSchema();
-
-        // Provides LocalDateTime support
-        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.registerModule(new LocalDateTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 

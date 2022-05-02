@@ -131,6 +131,14 @@ public class TestSerialization {
          assertEquals(List.of(), otherAction.getRecipients().get(0).getUsers());
      }
 
+     @Test
+     void shouldAcceptExtraPropertiesAtEventLevel() {
+         Action action = getValidAction();
+         action.getEvents().get(0).setAdditionalProperty("report_url", "http://blablabla.com");
+
+         assertDoesNotThrow(() -> Parser.decode(Parser.encode(action)));
+     }
+
     @Test
     void shouldFailWithoutRequiredFieldsWhenSerializing() throws JsonProcessingException {
         Action action = getValidAction();
@@ -207,6 +215,18 @@ public class TestSerialization {
                         22,
                         10,
                         133000000
+                )
+        );
+
+        testDate(
+                "2011-12-03T10:15:30+00:00",
+                LocalDateTime.of(
+                        2011,
+                        12,
+                        3,
+                        10,
+                        15,
+                        30
                 )
         );
     }
@@ -311,7 +331,7 @@ public class TestSerialization {
     /**
      * This method removes a field from a valid template and checks one of these two cases:
      - if {@code isRequired} is true, the field removal should trigger an exception throw when the template is decoded
-     - otherwise, the field removal should not cause any exception during the decoding as the field is expected to be optional 
+     - otherwise, the field removal should not cause any exception during the decoding as the field is expected to be optional
      */
     private void testRequiredField(String field, boolean isRequired, String template) throws JsonProcessingException {
         JsonNode base = objectMapper.readTree(template);

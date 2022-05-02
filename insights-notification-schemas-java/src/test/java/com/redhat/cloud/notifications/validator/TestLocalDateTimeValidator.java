@@ -15,6 +15,9 @@ public class TestLocalDateTimeValidator {
         assertTrue(validator.matches("2020-07-14T13:22:10"));
         assertTrue(validator.matches("2020-07-14T13:22:10Z"));
 
+        // 00:00 offset is fine
+        assertTrue(validator.matches("2011-12-03T10:15:30+00:00"));
+
         // Offsets
         assertFalse(validator.matches("2011-12-03T10:15:30+01:00[Europe/Paris]"));
         assertFalse(validator.matches("2011-12-03T10:15:30[Europe/Paris]"));
