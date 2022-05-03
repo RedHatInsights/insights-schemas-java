@@ -19,6 +19,7 @@ import com.redhat.cloud.notifications.jackson.LocalDateTimeModule;
 import com.redhat.cloud.notifications.validator.LocalDateTimeValidator;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 
 public class Parser {
@@ -147,10 +148,10 @@ public class Parser {
                 true
         ));
 
-        try {
-            ObjectMapper objectMapper = relaxed ? relaxedObjectMapper : strictObjectMapper;
+        ObjectMapper objectMapper = relaxed ? relaxedObjectMapper : strictObjectMapper;
 
-            JsonNode schema = objectMapper.readTree(Parser.class.getResourceAsStream("/schemas/Action.json"));
+        try (InputStream jsonSchemaStream = Parser.class.getResourceAsStream("/schemas/Action.json")) {
+            JsonNode schema = objectMapper.readTree(jsonSchemaStream);
 
             if (!relaxed) {
                 ObjectNode items = (ObjectNode) schema.get("properties").get("events").get("items");
