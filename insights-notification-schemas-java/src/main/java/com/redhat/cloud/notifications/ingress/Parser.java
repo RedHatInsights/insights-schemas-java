@@ -157,7 +157,7 @@ public class Parser {
                 items.put("additionalProperties", false);
             }
 
-            return jsonSchemaFactory().getSchema(
+            return jsonSchemaFactory(relaxed).getSchema(
                     schema,
                     schemaValidatorsConfig
             );
@@ -166,14 +166,14 @@ public class Parser {
         }
     }
 
-    private static JsonSchemaFactory jsonSchemaFactory() {
+    private static JsonSchemaFactory jsonSchemaFactory(boolean relaxed) {
         String ID = "$id";
 
         JsonMetaSchema overrideDateTimeValidator = new JsonMetaSchema.Builder(JsonMetaSchema.getV7().getUri())
                 .idKeyword(ID)
                 .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V7))
                 .addFormats(JsonMetaSchema.COMMON_BUILTIN_FORMATS)
-                .addFormat(new LocalDateTimeValidator())
+                .addFormat(new LocalDateTimeValidator(relaxed))
                 .build();
 
         return new JsonSchemaFactory.Builder().defaultMetaSchemaURI(overrideDateTimeValidator.getUri())
