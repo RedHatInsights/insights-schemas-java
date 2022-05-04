@@ -10,6 +10,7 @@ import org.junit.jupiter.api.function.Executable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +24,9 @@ public class TestSerialization {
 
     @Test
     void testActionSerialization() {
+        UUID id = UUID.randomUUID();
         Action targetAction = new Action.ActionBuilder()
+                .withId(id)
                 .withVersion("v1.1.0")
                 .withBundle("my-bundle")
                 .withApplication("Policies")
@@ -63,6 +66,7 @@ public class TestSerialization {
 
         assertNotNull(deserializedAction);
         assertEquals(targetAction.getAccountId(), deserializedAction.getAccountId());
+        assertEquals(id, targetAction.getId());
         assertEquals("123456-7890", deserializedAction.getContext().getAdditionalProperties().get("user_id"));
         assertEquals("foobar", deserializedAction.getContext().getAdditionalProperties().get("user_name"));
 
@@ -78,6 +82,21 @@ public class TestSerialization {
         assertNotNull(deserializedAction);
         assertEquals("123456-7890", deserializedAction.getContext().getAdditionalProperties().get("user_id"));
         assertEquals("foobar", deserializedAction.getContext().getAdditionalProperties().get("user_name"));
+
+        assertEquals(2, deserializedAction.getEvents().size());
+        assertEquals("v2", deserializedAction.getEvents().get(0).getPayload().getAdditionalProperties().get("k2"));
+        assertEquals("b2", deserializedAction.getEvents().get(1).getPayload().getAdditionalProperties().get("k2"));
+        assertEquals("2.0.0", deserializedAction.getVersion());
+    }
+
+    @Test
+    void deserializeWithStringContextAndPayloadAndId() {
+        String serializedWithoutRecipients = "{\"id\": \"f81d4fae-7dec-11d0-a765-00a0c91e6bf6\",\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"account_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
+        Action deserializedAction = Parser.decode(serializedWithoutRecipients);
+        assertNotNull(deserializedAction);
+        assertEquals("123456-7890", deserializedAction.getContext().getAdditionalProperties().get("user_id"));
+        assertEquals("foobar", deserializedAction.getContext().getAdditionalProperties().get("user_name"));
+        assertEquals(UUID.fromString("f81d4fae-7dec-11d0-a765-00a0c91e6bf6"), deserializedAction.getId());
 
         assertEquals(2, deserializedAction.getEvents().size());
         assertEquals("v2", deserializedAction.getEvents().get(0).getPayload().getAdditionalProperties().get("k2"));
