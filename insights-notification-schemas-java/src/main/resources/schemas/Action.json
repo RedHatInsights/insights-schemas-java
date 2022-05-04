@@ -8,6 +8,11 @@
       "title": "Version of the notification schema",
       "default": "2.0.0"
     },
+    "id": {
+      "type": "string",
+      "title": "Id of the Event as UUID4",
+      "format": "uuid"
+    },
     "bundle": {
       "type": "string",
       "title": "Bundle name",
