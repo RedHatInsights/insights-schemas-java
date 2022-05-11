@@ -69,7 +69,7 @@
           }
         },
         "$comment": "Accepting additional properties because one tenant is sending them at this level - should be removed once the tenant updates.",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "payload"
         ]

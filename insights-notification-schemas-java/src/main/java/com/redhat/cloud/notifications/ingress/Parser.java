@@ -24,23 +24,17 @@ import java.io.UncheckedIOException;
 
 public class Parser {
 
-    private final static ObjectMapper relaxedObjectMapper = new ObjectMapper();
-    private final static ObjectMapper strictObjectMapper = new ObjectMapper();
-    private final static JsonSchema strictJsonSchema;
-    private final static JsonSchema relaxedJsonSchema;
+    private final static ObjectMapper objectMapper = new ObjectMapper();
+    private final static JsonSchema jsonSchema;
 
     private final static String CONTEXT_FIELD = "context";
     private final static String EVENTS_FIELD = "events";
     private final static String PAYLOAD_FIELD = "payload";
 
     static {
-        relaxedJsonSchema = getJsonSchema(true);
-        relaxedObjectMapper.registerModule(new LocalDateTimeModule(true));
-        relaxedObjectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        strictJsonSchema = getJsonSchema(false);
-        strictObjectMapper.registerModule(new LocalDateTimeModule(false));
-        strictObjectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        jsonSchema = getJsonSchema();
+        objectMapper.registerModule(new LocalDateTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     /**
@@ -51,11 +45,11 @@ public class Parser {
      */
     public static Action decode(String actionJson) {
         try {
-            JsonNode action = relaxedObjectMapper.readTree(actionJson);
-            updateContextAndPayload(action, relaxedObjectMapper);
-            validate(action, relaxedJsonSchema);
+            JsonNode action = objectMapper.readTree(actionJson);
+            updateContextAndPayload(action, objectMapper);
+            validate(action, jsonSchema);
 
-            return relaxedObjectMapper.treeToValue(action, Action.class);
+            return objectMapper.treeToValue(action, Action.class);
         } catch (JsonProcessingException exception) {
             throw new UncheckedIOException("Unable to decode action", exception);
         }
@@ -69,10 +63,10 @@ public class Parser {
      */
     public static String encode(Action action) {
         try {
-            JsonNode asNode = strictObjectMapper.valueToTree(action);
-            validate(asNode, strictJsonSchema);
+            JsonNode asNode = objectMapper.valueToTree(action);
+            validate(asNode, jsonSchema);
 
-            return strictObjectMapper.writeValueAsString(asNode);
+            return objectMapper.writeValueAsString(asNode);
         } catch (JsonProcessingException exception) {
             throw new UncheckedIOException("Unable to encode action", exception);
         }
@@ -83,7 +77,7 @@ public class Parser {
      * @param action to be validated
      */
     public static void validate(Action action) {
-        validate(strictObjectMapper.valueToTree(action), strictJsonSchema);
+        validate(objectMapper.valueToTree(action), jsonSchema);
     }
 
     /**
@@ -95,8 +89,8 @@ public class Parser {
      */
     public static void validate(String actionJson) {
         try {
-            JsonNode action = strictObjectMapper.readTree(actionJson);
-            validate(action, strictJsonSchema);
+            JsonNode action = objectMapper.readTree(actionJson);
+            validate(action, jsonSchema);
         } catch (JsonProcessingException exception) {
             throw new UncheckedIOException("Unable to decode action", exception);
         }
@@ -140,7 +134,7 @@ public class Parser {
         }
     }
 
-    private static JsonSchema getJsonSchema(boolean relaxed) {
+    private static JsonSchema getJsonSchema() {
         SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
         schemaValidatorsConfig.setApplyDefaultsStrategy(new ApplyDefaultsStrategy(
                 true,
@@ -148,17 +142,10 @@ public class Parser {
                 true
         ));
 
-        ObjectMapper objectMapper = relaxed ? relaxedObjectMapper : strictObjectMapper;
-
         try (InputStream jsonSchemaStream = Parser.class.getResourceAsStream("/schemas/Action.json")) {
             JsonNode schema = objectMapper.readTree(jsonSchemaStream);
 
-            if (!relaxed) {
-                ObjectNode items = (ObjectNode) schema.get("properties").get("events").get("items");
-                items.put("additionalProperties", false);
-            }
-
-            return jsonSchemaFactory(relaxed).getSchema(
+            return jsonSchemaFactory().getSchema(
                     schema,
                     schemaValidatorsConfig
             );
@@ -167,14 +154,14 @@ public class Parser {
         }
     }
 
-    private static JsonSchemaFactory jsonSchemaFactory(boolean relaxed) {
+    private static JsonSchemaFactory jsonSchemaFactory() {
         String ID = "$id";
 
         JsonMetaSchema overrideDateTimeValidator = new JsonMetaSchema.Builder(JsonMetaSchema.getV7().getUri())
                 .idKeyword(ID)
                 .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V7))
                 .addFormats(JsonMetaSchema.COMMON_BUILTIN_FORMATS)
-                .addFormat(new LocalDateTimeValidator(relaxed))
+                .addFormat(new LocalDateTimeValidator())
                 .build();
 
         return new JsonSchemaFactory.Builder().defaultMetaSchemaURI(overrideDateTimeValidator.getUri())
