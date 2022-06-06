@@ -11,6 +11,7 @@ import com.networknt.schema.JsonMetaSchema;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.NonValidationKeyword;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidatorTypeCode;
@@ -21,6 +22,7 @@ import com.redhat.cloud.notifications.validator.LocalDateTimeValidator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.util.List;
 
 public class Parser {
 
@@ -160,6 +162,12 @@ public class Parser {
         JsonMetaSchema overrideDateTimeValidator = new JsonMetaSchema.Builder(JsonMetaSchema.getV7().getUri())
                 .idKeyword(ID)
                 .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V7))
+                .addKeywords(List.of(
+                        new NonValidationKeyword("title"),
+                        new NonValidationKeyword("$comment"),
+                        new NonValidationKeyword("description"),
+                        new NonValidationKeyword("default")
+                ))
                 .addFormats(JsonMetaSchema.COMMON_BUILTIN_FORMATS)
                 .addFormat(new LocalDateTimeValidator())
                 .build();
