@@ -68,7 +68,6 @@
             "title": "Event payload"
           }
         },
-        "$comment": "Accepting additional properties because one tenant is sending them at this level - should be removed once the tenant updates.",
         "additionalProperties": false,
         "required": [
           "payload"
