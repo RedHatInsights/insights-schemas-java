@@ -104,6 +104,16 @@ public class TestParser {
     }
 
     @Test
+    void shouldWorkDeserializingWithoutMetadata() {
+        String serializedWithoutMetadata = "{\"version\":\"v1.1.0\",\"bundle\":\"rhel\",\"application\":\"patch\",\"event_type\":\"new-advisory\",\"timestamp\":\"2022-07-05T08:47:39Z\",\"account_id\":\"6089719\",\"context\":{\"inventory_id\":\"e1e39f6d-9bfb-49a8-b0cb-e7a4255f54ba\"},\"events\":[{\"payload\":{\"advisory_id\":160818,\"advisory_name\":\"RHBA-2020:3897\",\"advisory_type\":\"bugfix\",\"synopsis\":\"screen bug fix and enhancement update\"}},{\"payload\":{\"advisory_id\":1700383,\"advisory_name\":\"RHSA-2021:0742\",\"advisory_type\":\"security\",\"synopsis\":\"Important: screen security update\"}}]}";
+        Action deserializedAction = Parser.decode(serializedWithoutMetadata);
+        assertNotNull(deserializedAction);
+        for (Event event : deserializedAction.getEvents()) {
+            assertNotNull(event.getMetadata());
+        }
+    }
+
+    @Test
     void shouldFailWithoutARequiredField() throws JsonProcessingException {
         String template = "{\"recipients\":[], \"bundle\":\"a-bundle\", \"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"account_id\":\"testTenant\",\"org_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
 
