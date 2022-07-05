@@ -59,7 +59,8 @@
             "type": "object",
             "properties": {},
             "title": "Event's metadata",
-            "description": "Placeholder for future details we might need"
+            "description": "Placeholder for future details we might need",
+            "default": {}
           },
           "payload": {
             "type": "object",
