@@ -122,12 +122,10 @@ public class TestParser {
         testRequiredField("application", true, template);
         testRequiredField("event_type", true, template);
         testRequiredField("timestamp", true, template);
-        testRequiredField("account_id", true, template);
         testRequiredField("events", true, template);
         testRequiredField("events.0.payload", true, template);
 
         // optional
-        testRequiredField("org_id", false, template);
         testRequiredField("context", false, template);
         testRequiredField("events.0.metadata", false, template);
         testRequiredField("recipients", false, template);
@@ -196,10 +194,6 @@ public class TestParser {
 
         action = getValidAction();
         action.setTimestamp(null);
-        testParserEncode(action, true);
-
-        action = getValidAction();
-        action.setAccountId(null);
         testParserEncode(action, true);
 
         action = getValidAction();
@@ -297,25 +291,27 @@ public class TestParser {
     }
 
     @Test
-    void shouldHaveAccountIdAndOrgIdIsOptional() {
+    void shouldFailIfNoAccountIdOrOrgIdAreSet() throws JsonProcessingException {
         Action action = getValidAction();
 
+        // Throws if both are null
         action.setAccountId(null);
         action.setOrgId(null);
-        assertThrows(ParsingException.class, () -> Parser.validate(action));
+        testEncodingAndDecoding(action, true);
 
-        action.setAccountId("foo");
+        // Pass if one is not null
+        action.setAccountId("123");
         action.setOrgId(null);
-        assertDoesNotThrow(() -> Parser.validate(action));
+        testEncodingAndDecoding(action, false);
 
         action.setAccountId(null);
-        action.setOrgId("foo");
-        // Once we support org_id, this wont fail anymore.
-        assertThrows(ParsingException.class, () -> Parser.validate(action));
+        action.setOrgId("123");
+        testEncodingAndDecoding(action, false);
 
-        action.setAccountId("foo");
-        action.setOrgId("foo");
-        assertDoesNotThrow(() -> Parser.validate(action));
+        // Pass if both are not null
+        action.setAccountId("123");
+        action.setOrgId("123");
+        testEncodingAndDecoding(action, false);
     }
 
     private Action getValidAction() {
@@ -391,6 +387,25 @@ public class TestParser {
         }
 
         return node.get(field);
+    }
+
+    private void testEncodingAndDecoding(Action action, boolean shouldFail) throws JsonProcessingException {
+        Executable encoding = () -> Parser.encode(action);
+
+        if (shouldFail) {
+            assertThrows(ParsingException.class, encoding);
+        } else {
+            assertDoesNotThrow(encoding);
+        }
+
+        String encodedAction = Parser.objectMapper.writeValueAsString(action);
+
+        Executable decoding = () -> Parser.decode(encodedAction);
+        if (shouldFail) {
+            assertThrows(ParsingException.class, decoding);
+        } else {
+            assertDoesNotThrow(decoding);
+        }
     }
 
     /**

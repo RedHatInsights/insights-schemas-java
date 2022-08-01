@@ -26,7 +26,7 @@ import java.util.List;
 
 public class Parser {
 
-    private final static ObjectMapper objectMapper = new ObjectMapper();
+    final static ObjectMapper objectMapper = new ObjectMapper();
     private final static JsonSchema jsonSchema;
 
     private final static String CONTEXT_FIELD = "context";
