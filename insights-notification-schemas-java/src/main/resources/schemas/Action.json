@@ -34,10 +34,7 @@
       "description": "ISO-8601 formatted date (per platform convention) when the message was sent in UTC. Dates with timezones/offsets are rejected.",
       "title": "Sent timestamp"
     },
-    "account_id": {
-      "type": "string",
-      "title": "Account id"
-    },
+    "account_id": true,
     "org_id": {
       "type": "string",
       "title": "Organization id"
@@ -127,11 +124,25 @@
   ],
   "anyOf": [
     {
+      "type": "object",
+      "properties": {
+        "account_id": {
+          "type": "string",
+          "title": "Account id"
+        }
+      },
       "required": [
         "account_id"
       ]
     },
     {
+      "type": "object",
+      "properties": {
+        "account_id": {
+          "type": [ "string", "null" ],
+          "title": "Account id"
+        }
+      },
       "required": [
         "org_id"
       ]
