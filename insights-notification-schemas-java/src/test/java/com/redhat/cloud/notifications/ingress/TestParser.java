@@ -206,10 +206,6 @@ public class TestParser {
 
         // optional
         action = getValidAction();
-        action.setOrgId(null);
-        testParserEncode(action, false);
-
-        action = getValidAction();
         action.setContext(null);
         testParserEncode(action, false);
 
@@ -220,6 +216,25 @@ public class TestParser {
         action = getValidAction();
         action.setRecipients(null);
         testParserEncode(action, false);
+
+        // conditionally required
+        // either account_id or org_id - but account_id cannot be null
+        // To test the "null" part we need to manually build the json (done in a `shouldAcceptNullAccountId` test)
+        // no org_id
+        action = getValidAction();
+        action.setOrgId(null);
+        testParserEncode(action, false);
+
+        // no account_id
+        action = getValidAction();
+        action.setAccountId(null);
+        testParserEncode(action, false);
+
+        // no org_id and account_id
+        action = getValidAction();
+        action.setAccountId(null);
+        action.setOrgId(null);
+        testParserEncode(action, true);
     }
 
     @Test
@@ -312,6 +327,14 @@ public class TestParser {
         action.setAccountId("123");
         action.setOrgId("123");
         testEncodingAndDecoding(action, false);
+    }
+
+    @Test
+    void shouldAcceptNullAccountIdOnlyIfOrgIdIsSet() {
+        assertNotNull(Parser.decode("{\"version\":\"v1.1.0\",\"bundle\":\"rhel\",\"application\":\"myapp\",\"event_type\":\"my-event\",\"timestamp\":\"2022-08-31T12:43:42Z\",\"account_id\":null,\"context\":{\"inventory_id\":\"b512425e-acb0-3360-86d6-c2fbe3676c63\",\"display_name\":\"my-cool-name\",\"host_url\":\"\"},\"events\":[{\"metadata\":{},\"payload\":{\"advisory_id\":2432324,\"advisory_name\":\"ADVISORY-1337\",\"advisory_type\":\"bugfix\",\"synopsis\":\"foobar\"}}],\"org_id\":\"007\"}"));
+        assertThrows(Exception.class,
+                () -> Parser.decode("{\"version\":\"v1.1.0\",\"bundle\":\"rhel\",\"application\":\"myapp\",\"event_type\":\"my-event\",\"timestamp\":\"2022-08-31T12:43:42Z\",\"account_id\":null,\"context\":{\"inventory_id\":\"b512425e-acb0-3360-86d6-c2fbe3676c63\",\"display_name\":\"my-cool-name\",\"host_url\":\"\"},\"events\":[{\"metadata\":{},\"payload\":{\"advisory_id\":2432324,\"advisory_name\":\"ADVISORY-1337\",\"advisory_type\":\"bugfix\",\"synopsis\":\"foobar\"}}]}")
+        );
     }
 
     private Action getValidAction() {
