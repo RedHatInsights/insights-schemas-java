@@ -218,7 +218,7 @@ public class TestParser {
         testParserEncode(action, false);
 
         // conditionally required
-        // either account_id or org_id - but account_id cannot be null
+        // either account_id or org_id - but account_id can be null if org_id is provided
         // To test the "null" part we need to manually build the json (done in a `shouldAcceptNullAccountId` test)
         // no org_id
         action = getValidAction();
