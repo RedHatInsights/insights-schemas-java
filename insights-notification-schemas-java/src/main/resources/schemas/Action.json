@@ -123,25 +123,7 @@
     "application",
     "event_type",
     "timestamp",
-    "events"
-  ],
-  "anyOf": [
-    {
-      "type": "object",
-      "properties": {
-        "account_id": {
-          "type": "string",
-          "title": "Account id"
-        }
-      },
-      "required": [
-        "account_id"
-      ]
-    },
-    {
-      "required": [
-        "org_id"
-      ]
-    }
+    "events",
+    "org_id"
   ]
 }
