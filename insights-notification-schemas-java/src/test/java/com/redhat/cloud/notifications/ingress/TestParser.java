@@ -31,7 +31,7 @@ public class TestParser {
                 .withApplication("Policies")
                 .withTimestamp(LocalDateTime.now())
                 .withEventType("Any")
-                .withAccountId("testTenant")
+                .withOrgId("testTenant")
                 .withContext(
                         new Context.ContextBuilder()
                                 .withAdditionalProperty("user_id", "123456-7890")
@@ -76,7 +76,7 @@ public class TestParser {
 
     @Test
     void deserializeWithStringContextAndPayload() {
-        String serializedWithoutRecipients = "{\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"account_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
+        String serializedWithoutRecipients = "{\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"org_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
         Action deserializedAction = Parser.decode(serializedWithoutRecipients);
         assertNotNull(deserializedAction);
         assertEquals("123456-7890", deserializedAction.getContext().getAdditionalProperties().get("user_id"));
@@ -90,7 +90,7 @@ public class TestParser {
 
     @Test
     void deserializeWithStringContextAndPayloadAndId() {
-        String serializedWithoutRecipients = "{\"id\": \"f81d4fae-7dec-11d0-a765-00a0c91e6bf6\",\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"account_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
+        String serializedWithoutRecipients = "{\"id\": \"f81d4fae-7dec-11d0-a765-00a0c91e6bf6\",\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"org_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
         Action deserializedAction = Parser.decode(serializedWithoutRecipients);
         assertNotNull(deserializedAction);
         assertEquals("123456-7890", deserializedAction.getContext().getAdditionalProperties().get("user_id"));
@@ -105,7 +105,7 @@ public class TestParser {
 
     @Test
     void shouldWorkDeserializingWithoutMetadata() {
-        String serializedWithoutMetadata = "{\"version\":\"v1.1.0\",\"bundle\":\"rhel\",\"application\":\"patch\",\"event_type\":\"new-advisory\",\"timestamp\":\"2022-07-05T08:47:39Z\",\"account_id\":\"6089719\",\"context\":{\"inventory_id\":\"e1e39f6d-9bfb-49a8-b0cb-e7a4255f54ba\"},\"events\":[{\"payload\":{\"advisory_id\":160818,\"advisory_name\":\"RHBA-2020:3897\",\"advisory_type\":\"bugfix\",\"synopsis\":\"screen bug fix and enhancement update\"}},{\"payload\":{\"advisory_id\":1700383,\"advisory_name\":\"RHSA-2021:0742\",\"advisory_type\":\"security\",\"synopsis\":\"Important: screen security update\"}}]}";
+        String serializedWithoutMetadata = "{\"version\":\"v1.1.0\",\"bundle\":\"rhel\",\"application\":\"patch\",\"event_type\":\"new-advisory\",\"timestamp\":\"2022-07-05T08:47:39Z\",\"org_id\":\"6089719\",\"context\":{\"inventory_id\":\"e1e39f6d-9bfb-49a8-b0cb-e7a4255f54ba\"},\"events\":[{\"payload\":{\"advisory_id\":160818,\"advisory_name\":\"RHBA-2020:3897\",\"advisory_type\":\"bugfix\",\"synopsis\":\"screen bug fix and enhancement update\"}},{\"payload\":{\"advisory_id\":1700383,\"advisory_name\":\"RHSA-2021:0742\",\"advisory_type\":\"security\",\"synopsis\":\"Important: screen security update\"}}]}";
         Action deserializedAction = Parser.decode(serializedWithoutMetadata);
         assertNotNull(deserializedAction);
         for (Event event : deserializedAction.getEvents()) {
@@ -118,6 +118,7 @@ public class TestParser {
         String template = "{\"recipients\":[], \"bundle\":\"a-bundle\", \"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"account_id\":\"testTenant\",\"org_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
 
         // required
+        testRequiredField("org_id", true, template);
         testRequiredField("bundle", true, template);
         testRequiredField("application", true, template);
         testRequiredField("event_type", true, template);
@@ -127,6 +128,7 @@ public class TestParser {
 
         // optional
         testRequiredField("context", false, template);
+        testRequiredField("account_id", false, template);
         testRequiredField("events.0.metadata", false, template);
         testRequiredField("recipients", false, template);
     }
@@ -167,7 +169,7 @@ public class TestParser {
 
     @Test
     void shouldAcceptTimestampWith00OffsetWhenDeserializingAndValidating() {
-        String jsonAction = "{\"version\":\"v1.1.0\",\"bundle\":\"rhel\",\"application\":\"compliance\",\"event_type\":\"compliance-below-threshold\",\"timestamp\":\"2022-05-02T17:30:54+00:00\",\"account_id\":\"6089719\",\"events\":[{\"metadata\":{},\"payload\": {}}],\"context\": {},\"recipients\":[]}";
+        String jsonAction = "{\"version\":\"v1.1.0\",\"bundle\":\"rhel\",\"application\":\"compliance\",\"event_type\":\"compliance-below-threshold\",\"timestamp\":\"2022-05-02T17:30:54+00:00\",\"org_id\":\"6089719\",\"events\":[{\"metadata\":{},\"payload\": {}}],\"context\": {},\"recipients\":[]}";
         Action action = Parser.decode(jsonAction);
         assertEquals(LocalDateTime.of(2022, 5, 2, 17, 30 ,54), action.getTimestamp());
 
@@ -204,6 +206,10 @@ public class TestParser {
         action.getEvents().get(0).setPayload(null);
         testParserEncode(action, true);
 
+        action = getValidAction();
+        action.setOrgId(null);
+        testParserEncode(action, true);
+
         // optional
         action = getValidAction();
         action.setContext(null);
@@ -215,14 +221,6 @@ public class TestParser {
 
         action = getValidAction();
         action.setRecipients(null);
-        testParserEncode(action, false);
-
-        // conditionally required
-        // either account_id or org_id - but account_id can be null if org_id is provided
-        // To test the "null" part we need to manually build the json (done in a `shouldAcceptNullAccountId` test)
-        // no org_id
-        action = getValidAction();
-        action.setOrgId(null);
         testParserEncode(action, false);
 
         // no account_id
@@ -306,30 +304,6 @@ public class TestParser {
     }
 
     @Test
-    void shouldFailIfNoAccountIdOrOrgIdAreSet() throws JsonProcessingException {
-        Action action = getValidAction();
-
-        // Throws if both are null
-        action.setAccountId(null);
-        action.setOrgId(null);
-        testEncodingAndDecoding(action, true);
-
-        // Pass if one is not null
-        action.setAccountId("123");
-        action.setOrgId(null);
-        testEncodingAndDecoding(action, false);
-
-        action.setAccountId(null);
-        action.setOrgId("123");
-        testEncodingAndDecoding(action, false);
-
-        // Pass if both are not null
-        action.setAccountId("123");
-        action.setOrgId("123");
-        testEncodingAndDecoding(action, false);
-    }
-
-    @Test
     void shouldAcceptNullAccountIdOnlyIfOrgIdIsSet() {
         assertNotNull(Parser.decode("{\"version\":\"v1.1.0\",\"bundle\":\"rhel\",\"application\":\"myapp\",\"event_type\":\"my-event\",\"timestamp\":\"2022-08-31T12:43:42Z\",\"account_id\":null,\"context\":{\"inventory_id\":\"b512425e-acb0-3360-86d6-c2fbe3676c63\",\"display_name\":\"my-cool-name\",\"host_url\":\"\"},\"events\":[{\"metadata\":{},\"payload\":{\"advisory_id\":2432324,\"advisory_name\":\"ADVISORY-1337\",\"advisory_type\":\"bugfix\",\"synopsis\":\"foobar\"}}],\"org_id\":\"007\"}"));
         assertThrows(Exception.class,
@@ -377,7 +351,7 @@ public class TestParser {
 
     private void testDate(String stringAsDate, LocalDateTime dateTime) {
         String serialized = String.format(
-                "{\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"%s\",\"account_id\":\"testTenant\",\"context\":{},\"events\":[]}\n",
+                "{\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"%s\",\"org_id\":\"testTenant\",\"context\":{},\"events\":[]}\n",
                 stringAsDate
         );
         assertEquals(
