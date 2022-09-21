@@ -29,7 +29,7 @@
         <javadoc.plugin.version>3.4.1</javadoc.plugin.version>
         <jackson.version>2.13.4</jackson.version>
         <json-schema-validator.version>1.0.73</json-schema-validator.version>
-        <slf4j.version>1.7.36</slf4j.version>
+        <slf4j.version>2.0.2</slf4j.version>
     </properties>
 
     <licenses>
