@@ -1,0 +1,82 @@
+{
+  "$comment": "This schema defines some additional information for an Action that might be useful",
+  "additionalProperties": false,
+  "description": "Describes additional information fields for some of the fields of the Action",
+  "title": "Action's details",
+  "type": "object",
+  "properties": {
+    "version": {},
+    "id": {},
+    "bundle": {},
+    "application": {},
+    "event_type": {},
+    "timestamp": {},
+    "account_id": {},
+    "org_id": {},
+    "context": {},
+    "events": {},
+    "recipients": {},
+    "source": {
+      "additionalProperties": false,
+      "description": "The extended details related to the Action",
+      "title": "Source",
+      "type": "object",
+      "properties": {
+        "application": {
+          "additionalProperties": false,
+          "description": "Represents the extra information for the application object",
+          "title": "Application",
+          "type": "object",
+          "properties": {
+            "display_name": {
+              "description": "A user friendly version of the application's name",
+              "minLength": 1,
+              "required": true,
+              "title": "The application's display name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "display_name"
+          ]
+        },
+        "bundle": {
+          "additionalProperties": false,
+          "description": "Represents the extra information for the bundle object",
+          "title": "Bundle",
+          "type": "object",
+          "properties": {
+            "display_name": {
+              "description": "A user friendly version of the bundle's name",
+              "minLength": 1,
+              "required": true,
+              "title": "Bundle's display name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "display_name"
+          ]
+        },
+        "event_type": {
+          "additionalProperties": false,
+          "description": "Represents the extra information for the event type object",
+          "title": "Event Type",
+          "type": "object",
+          "properties": {
+            "display_name": {
+              "description": "A user friendly version of the event type's name",
+              "minLength": 1,
+              "required": true,
+              "title": "Event type's display name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "display_name"
+          ]
+        }
+      }
+    }
+  }
+}

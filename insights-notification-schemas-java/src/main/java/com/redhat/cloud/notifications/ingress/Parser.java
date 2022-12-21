@@ -29,12 +29,15 @@ public class Parser {
     final static ObjectMapper objectMapper = new ObjectMapper();
     private final static JsonSchema jsonSchema;
 
+    private final static String ACTION_SCHEMA_PATH = "/schemas/Action.json";
+    private final static String ACTION_OUT_SCHEMA_PATH = "/schemas/Action-out.json";
+
     private final static String CONTEXT_FIELD = "context";
     private final static String EVENTS_FIELD = "events";
     private final static String PAYLOAD_FIELD = "payload";
 
     static {
-        jsonSchema = getJsonSchema();
+        jsonSchema = getJsonSchema(ACTION_SCHEMA_PATH);
         objectMapper.registerModule(new LocalDateTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
@@ -113,6 +116,16 @@ public class Parser {
         }
     }
 
+    /**
+     * Validates an "Action out" and ensures that all the values conform to the schema.
+     * @param actionOut ActionOut to be validated.
+     */
+    public static void validate(final ActionOut actionOut) {
+        final JsonSchema actionOutJsonSchema = getJsonSchema(ACTION_OUT_SCHEMA_PATH);
+
+        validate(objectMapper.valueToTree(actionOut), actionOutJsonSchema);
+    }
+
     // context and events[].payload could be strings, change these values to jsons objects.
     private static void updateContextAndPayload(JsonNode action, ObjectMapper objectMapper) throws JsonProcessingException {
         parseFieldIfNeeded(action, CONTEXT_FIELD, objectMapper);
@@ -136,7 +149,7 @@ public class Parser {
         }
     }
 
-    private static JsonSchema getJsonSchema() {
+    private static JsonSchema getJsonSchema(final String schemaPath) {
         SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
         schemaValidatorsConfig.setApplyDefaultsStrategy(new ApplyDefaultsStrategy(
                 true,
@@ -144,7 +157,7 @@ public class Parser {
                 true
         ));
 
-        try (InputStream jsonSchemaStream = Parser.class.getResourceAsStream("/schemas/Action.json")) {
+        try (InputStream jsonSchemaStream = Parser.class.getResourceAsStream(schemaPath)) {
             JsonNode schema = objectMapper.readTree(jsonSchemaStream);
 
             return jsonSchemaFactory().getSchema(

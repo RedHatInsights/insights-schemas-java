@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -310,6 +311,673 @@ public class TestParser {
                 () -> Parser.decode("{\"version\":\"v1.1.0\",\"bundle\":\"rhel\",\"application\":\"myapp\",\"event_type\":\"my-event\",\"timestamp\":\"2022-08-31T12:43:42Z\",\"account_id\":null,\"context\":{\"inventory_id\":\"b512425e-acb0-3360-86d6-c2fbe3676c63\",\"display_name\":\"my-cool-name\",\"host_url\":\"\"},\"events\":[{\"metadata\":{},\"payload\":{\"advisory_id\":2432324,\"advisory_name\":\"ADVISORY-1337\",\"advisory_type\":\"bugfix\",\"synopsis\":\"foobar\"}}]}")
         );
     }
+
+    /**
+     * Validate that when an "action-out" that is properly built is validated,
+     * it doesn't generate any validation errors.
+     */
+    @Test
+    void validParseableActionOut() {
+        final UUID id = UUID.randomUUID();
+        final Action targetAction = new Action.ActionBuilder()
+                .withId(id)
+                .withVersion("v1.1.0")
+                .withBundle("my-bundle")
+                .withApplication("Policies")
+                .withTimestamp(LocalDateTime.now())
+                .withEventType("Any")
+                .withOrgId("testTenant")
+                .withContext(
+                        new Context.ContextBuilder()
+                                .withAdditionalProperty("user_id", "123456-7890")
+                                .withAdditionalProperty("user_name", "foobar")
+                                .build()
+                )
+                .withEvents(List.of(
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "v")
+                                                .withAdditionalProperty("k2", "v2")
+                                                .withAdditionalProperty("k3", "v")
+                                                .build()
+                                ).build(),
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "b")
+                                                .withAdditionalProperty("k2", "b2")
+                                                .withAdditionalProperty("k3", "b")
+                                                .build()
+                                ).build()
+                ))
+                .build();
+
+        final ActionOut targetActionOut = new ActionOut.ActionOutBuilder()
+                .withId(targetAction.getId())
+                .withVersion(targetAction.getVersion())
+                .withBundle(targetAction.getBundle())
+                .withApplication(targetAction.getApplication())
+                .withTimestamp(targetAction.getTimestamp())
+                .withEventType(targetAction.getEventType())
+                .withOrgId(targetAction.getOrgId())
+                .withContext(targetAction.getContext())
+                .withEvents(targetAction.getEvents())
+                .withSource(
+                        new Source.SourceBuilder()
+                                .withApplication(
+                                        new Application.ApplicationBuilder()
+                                                .withDisplayName("action-display-name")
+                                                .build()
+                                )
+                                .withBundle(
+                                        new Bundle.BundleBuilder()
+                                                .withDisplayName("bundle-display-name")
+                                                .build()
+                                )
+                                .withEventType(
+                                        new EventType.EventTypeBuilder()
+                                                .withDisplayName("event-type-display-name")
+                                                .build()
+                                )
+                                .build()
+                )
+                .build();
+
+        Parser.validate(targetActionOut);
+    }
+
+    /**
+     * Validates that when an "action-out" that is properly built, even if it
+     * has an empty source, doesn't generate any validation errors when
+     * validating.
+     */
+    @Test
+    void validParseableActionOutEmptySource() {
+        final UUID id = UUID.randomUUID();
+        final Action targetAction = new Action.ActionBuilder()
+                .withId(id)
+                .withVersion("v1.1.0")
+                .withBundle("my-bundle")
+                .withApplication("Policies")
+                .withTimestamp(LocalDateTime.now())
+                .withEventType("Any")
+                .withOrgId("testTenant")
+                .withContext(
+                        new Context.ContextBuilder()
+                                .withAdditionalProperty("user_id", "123456-7890")
+                                .withAdditionalProperty("user_name", "foobar")
+                                .build()
+                )
+                .withEvents(List.of(
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "v")
+                                                .withAdditionalProperty("k2", "v2")
+                                                .withAdditionalProperty("k3", "v")
+                                                .build()
+                                ).build(),
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "b")
+                                                .withAdditionalProperty("k2", "b2")
+                                                .withAdditionalProperty("k3", "b")
+                                                .build()
+                                ).build()
+                ))
+                .build();
+
+        final ActionOut targetActionOut = new ActionOut.ActionOutBuilder()
+                .withId(targetAction.getId())
+                .withVersion(targetAction.getVersion())
+                .withBundle(targetAction.getBundle())
+                .withApplication(targetAction.getApplication())
+                .withTimestamp(targetAction.getTimestamp())
+                .withEventType(targetAction.getEventType())
+                .withOrgId(targetAction.getOrgId())
+                .withContext(targetAction.getContext())
+                .withEvents(targetAction.getEvents())
+                .withSource(
+                        new Source.SourceBuilder()
+                                .build()
+                )
+                .build();
+
+        Parser.validate(targetActionOut);
+    }
+
+
+    /**
+     * Tests that a "property is missing but is required" validation error is
+     * returned when an empty application object is present inside the source
+     * key in an "action-out".
+     */
+    @Test
+    void validParseableActionOutMissingApplication() {
+        final UUID id = UUID.randomUUID();
+        final Action targetAction = new Action.ActionBuilder()
+                .withId(id)
+                .withVersion("v1.1.0")
+                .withBundle("my-bundle")
+                .withApplication("Policies")
+                .withTimestamp(LocalDateTime.now())
+                .withEventType("Any")
+                .withOrgId("testTenant")
+                .withContext(
+                        new Context.ContextBuilder()
+                                .withAdditionalProperty("user_id", "123456-7890")
+                                .withAdditionalProperty("user_name", "foobar")
+                                .build()
+                )
+                .withEvents(List.of(
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "v")
+                                                .withAdditionalProperty("k2", "v2")
+                                                .withAdditionalProperty("k3", "v")
+                                                .build()
+                                ).build(),
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "b")
+                                                .withAdditionalProperty("k2", "b2")
+                                                .withAdditionalProperty("k3", "b")
+                                                .build()
+                                ).build()
+                ))
+                .build();
+
+        final ActionOut targetActionOut = new ActionOut.ActionOutBuilder()
+                .withId(targetAction.getId())
+                .withVersion(targetAction.getVersion())
+                .withBundle(targetAction.getBundle())
+                .withApplication(targetAction.getApplication())
+                .withTimestamp(targetAction.getTimestamp())
+                .withEventType(targetAction.getEventType())
+                .withOrgId(targetAction.getOrgId())
+                .withContext(targetAction.getContext())
+                .withEvents(targetAction.getEvents())
+                .withSource(
+                        new Source.SourceBuilder()
+                                .withApplication(
+                                        new Application.ApplicationBuilder()
+                                                .build()
+                                )
+                                .withBundle(
+                                        new Bundle.BundleBuilder()
+                                                .withDisplayName("bundle-display-name")
+                                                .build()
+                                )
+                                .withEventType(
+                                        new EventType.EventTypeBuilder()
+                                                .withDisplayName("event-type-display-name")
+                                                .build()
+                                )
+                                .build()
+                )
+                .build();
+
+        final ParsingException exception = Assertions.assertThrows(
+                ParsingException.class,
+                () -> Parser.validate(targetActionOut),
+                "exception expected, got none"
+        );
+
+        Assertions.assertEquals(1, exception.getValidationMessages().size(), "one validation exception expected");
+
+        for (final var validationMessage : exception.getValidationMessages()) {
+            Assertions.assertEquals("$.source.application.display_name: is missing but it is required", validationMessage.getMessage(), "unexpected validation message");
+        }
+    }
+
+    /**
+     * Tests that when an "action-out" which contains a source along with an
+     * application with an empty display name gets validated, a "minimum length"
+     * validation error is returned.
+     */
+    @Test
+    void validParseableActionOutMissingApplicationDisplayName() {
+        final UUID id = UUID.randomUUID();
+        final Action targetAction = new Action.ActionBuilder()
+                .withId(id)
+                .withVersion("v1.1.0")
+                .withBundle("my-bundle")
+                .withApplication("Policies")
+                .withTimestamp(LocalDateTime.now())
+                .withEventType("Any")
+                .withOrgId("testTenant")
+                .withContext(
+                        new Context.ContextBuilder()
+                                .withAdditionalProperty("user_id", "123456-7890")
+                                .withAdditionalProperty("user_name", "foobar")
+                                .build()
+                )
+                .withEvents(List.of(
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "v")
+                                                .withAdditionalProperty("k2", "v2")
+                                                .withAdditionalProperty("k3", "v")
+                                                .build()
+                                ).build(),
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "b")
+                                                .withAdditionalProperty("k2", "b2")
+                                                .withAdditionalProperty("k3", "b")
+                                                .build()
+                                ).build()
+                ))
+                .build();
+
+        final ActionOut targetActionOut = new ActionOut.ActionOutBuilder()
+                .withId(targetAction.getId())
+                .withVersion(targetAction.getVersion())
+                .withBundle(targetAction.getBundle())
+                .withApplication(targetAction.getApplication())
+                .withTimestamp(targetAction.getTimestamp())
+                .withEventType(targetAction.getEventType())
+                .withOrgId(targetAction.getOrgId())
+                .withContext(targetAction.getContext())
+                .withEvents(targetAction.getEvents())
+                .withSource(
+                        new Source.SourceBuilder()
+                                .withApplication(
+                                        new Application.ApplicationBuilder()
+                                                .withDisplayName("")
+                                                .build()
+                                )
+                                .withBundle(
+                                        new Bundle.BundleBuilder()
+                                                .withDisplayName("bundle-display-name")
+                                                .build()
+                                )
+                                .withEventType(
+                                        new EventType.EventTypeBuilder()
+                                                .withDisplayName("event-type-display-name")
+                                                .build()
+                                )
+                                .build()
+                )
+                .build();
+
+        final ParsingException exception = Assertions.assertThrows(
+                ParsingException.class,
+                () -> Parser.validate(targetActionOut),
+                "exception expected, got none"
+        );
+
+        Assertions.assertEquals(1, exception.getValidationMessages().size(), "one validation exception expected");
+
+        for (final var validationMessage : exception.getValidationMessages()) {
+            Assertions.assertEquals("$.source.application.display_name: must be at least 1 characters long", validationMessage.getMessage(), "unexpected validation message");
+        }
+    }
+
+    /**
+     * Tests that a "property is missing but is required" validation error is
+     * returned when an empty bundle object is present inside the source key in
+     * an "action-out".
+     */
+    @Test
+    void validParseableActionOutMissingBundle() {
+        final UUID id = UUID.randomUUID();
+        final Action targetAction = new Action.ActionBuilder()
+                .withId(id)
+                .withVersion("v1.1.0")
+                .withBundle("my-bundle")
+                .withApplication("Policies")
+                .withTimestamp(LocalDateTime.now())
+                .withEventType("Any")
+                .withOrgId("testTenant")
+                .withContext(
+                        new Context.ContextBuilder()
+                                .withAdditionalProperty("user_id", "123456-7890")
+                                .withAdditionalProperty("user_name", "foobar")
+                                .build()
+                )
+                .withEvents(List.of(
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "v")
+                                                .withAdditionalProperty("k2", "v2")
+                                                .withAdditionalProperty("k3", "v")
+                                                .build()
+                                ).build(),
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "b")
+                                                .withAdditionalProperty("k2", "b2")
+                                                .withAdditionalProperty("k3", "b")
+                                                .build()
+                                ).build()
+                ))
+                .build();
+
+        final ActionOut targetActionOut = new ActionOut.ActionOutBuilder()
+                .withId(targetAction.getId())
+                .withVersion(targetAction.getVersion())
+                .withBundle(targetAction.getBundle())
+                .withApplication(targetAction.getApplication())
+                .withTimestamp(targetAction.getTimestamp())
+                .withEventType(targetAction.getEventType())
+                .withOrgId(targetAction.getOrgId())
+                .withContext(targetAction.getContext())
+                .withEvents(targetAction.getEvents())
+                .withSource(
+                        new Source.SourceBuilder()
+                                .withApplication(
+                                        new Application.ApplicationBuilder()
+                                                .withDisplayName("action-display-name")
+                                                .build()
+                                )
+                                .withBundle(
+                                        new Bundle.BundleBuilder()
+                                                .build()
+                                )
+                                .withEventType(
+                                        new EventType.EventTypeBuilder()
+                                                .withDisplayName("event-type-display-name")
+                                                .build()
+                                )
+                                .build()
+                )
+                .build();
+
+        final ParsingException exception = Assertions.assertThrows(
+                ParsingException.class,
+                () -> Parser.validate(targetActionOut),
+                "exception expected, got none"
+        );
+
+        Assertions.assertEquals(1, exception.getValidationMessages().size(), "one validation exception expected");
+
+        for (final var validationMessage : exception.getValidationMessages()) {
+            Assertions.assertEquals("$.source.bundle.display_name: is missing but it is required", validationMessage.getMessage(), "unexpected validation message");
+        }
+    }
+
+    /**
+     * Tests that when an "action-out" which contains a source along with a
+     * bundle with an empty display name gets validated, a "minimum length"
+     * validation error is returned.
+     */
+    @Test
+    void validParseableActionOutMissingBundleDisplayName() {
+        final UUID id = UUID.randomUUID();
+        final Action targetAction = new Action.ActionBuilder()
+                .withId(id)
+                .withVersion("v1.1.0")
+                .withBundle("my-bundle")
+                .withApplication("Policies")
+                .withTimestamp(LocalDateTime.now())
+                .withEventType("Any")
+                .withOrgId("testTenant")
+                .withContext(
+                        new Context.ContextBuilder()
+                                .withAdditionalProperty("user_id", "123456-7890")
+                                .withAdditionalProperty("user_name", "foobar")
+                                .build()
+                )
+                .withEvents(List.of(
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "v")
+                                                .withAdditionalProperty("k2", "v2")
+                                                .withAdditionalProperty("k3", "v")
+                                                .build()
+                                ).build(),
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "b")
+                                                .withAdditionalProperty("k2", "b2")
+                                                .withAdditionalProperty("k3", "b")
+                                                .build()
+                                ).build()
+                ))
+                .build();
+
+        final ActionOut targetActionOut = new ActionOut.ActionOutBuilder()
+                .withId(targetAction.getId())
+                .withVersion(targetAction.getVersion())
+                .withBundle(targetAction.getBundle())
+                .withApplication(targetAction.getApplication())
+                .withTimestamp(targetAction.getTimestamp())
+                .withEventType(targetAction.getEventType())
+                .withOrgId(targetAction.getOrgId())
+                .withContext(targetAction.getContext())
+                .withEvents(targetAction.getEvents())
+                .withSource(
+                        new Source.SourceBuilder()
+                                .withApplication(
+                                        new Application.ApplicationBuilder()
+                                                .withDisplayName("action-display-name")
+                                                .build()
+                                )
+                                .withBundle(
+                                        new Bundle.BundleBuilder()
+                                                .withDisplayName("")
+                                                .build()
+                                )
+                                .withEventType(
+                                        new EventType.EventTypeBuilder()
+                                                .withDisplayName("event-type-display-name")
+                                                .build()
+                                )
+                                .build()
+                )
+                .build();
+
+        final ParsingException exception = Assertions.assertThrows(
+                ParsingException.class,
+                () -> Parser.validate(targetActionOut),
+                "exception expected, got none"
+        );
+
+        Assertions.assertEquals(1, exception.getValidationMessages().size(), "one validation exception expected");
+
+        for (final var validationMessage : exception.getValidationMessages()) {
+            Assertions.assertEquals("$.source.bundle.display_name: must be at least 1 characters long", validationMessage.getMessage(), "unexpected validation message");
+        }
+    }
+
+    /**
+     * Tests that a "property is missing but is required" validation error is
+     * returned when an empty event type object is present inside the source
+     * key in an "action-out".
+     */
+    @Test
+    void validParseableActionOutMissingEventType() {
+        final UUID id = UUID.randomUUID();
+        final Action targetAction = new Action.ActionBuilder()
+                .withId(id)
+                .withVersion("v1.1.0")
+                .withBundle("my-bundle")
+                .withApplication("Policies")
+                .withTimestamp(LocalDateTime.now())
+                .withEventType("Any")
+                .withOrgId("testTenant")
+                .withContext(
+                        new Context.ContextBuilder()
+                                .withAdditionalProperty("user_id", "123456-7890")
+                                .withAdditionalProperty("user_name", "foobar")
+                                .build()
+                )
+                .withEvents(List.of(
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "v")
+                                                .withAdditionalProperty("k2", "v2")
+                                                .withAdditionalProperty("k3", "v")
+                                                .build()
+                                ).build(),
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "b")
+                                                .withAdditionalProperty("k2", "b2")
+                                                .withAdditionalProperty("k3", "b")
+                                                .build()
+                                ).build()
+                ))
+                .build();
+
+        final ActionOut targetActionOut = new ActionOut.ActionOutBuilder()
+                .withId(targetAction.getId())
+                .withVersion(targetAction.getVersion())
+                .withBundle(targetAction.getBundle())
+                .withApplication(targetAction.getApplication())
+                .withTimestamp(targetAction.getTimestamp())
+                .withEventType(targetAction.getEventType())
+                .withOrgId(targetAction.getOrgId())
+                .withContext(targetAction.getContext())
+                .withEvents(targetAction.getEvents())
+                .withSource(
+                        new Source.SourceBuilder()
+                                .withApplication(
+                                        new Application.ApplicationBuilder()
+                                                .withDisplayName("action-display-name")
+                                                .build()
+                                )
+                                .withBundle(
+                                        new Bundle.BundleBuilder()
+                                                .withDisplayName("bundle-display-name")
+                                                .build()
+                                )
+                                .withEventType(
+                                        new EventType.EventTypeBuilder()
+                                                .build()
+                                )
+                                .build()
+                )
+                .build();
+
+        final ParsingException exception = Assertions.assertThrows(
+                ParsingException.class,
+                () -> Parser.validate(targetActionOut),
+                "exception expected, got none"
+        );
+
+        Assertions.assertEquals(1, exception.getValidationMessages().size(), "one validation exception expected");
+
+        for (final var validationMessage : exception.getValidationMessages()) {
+            Assertions.assertEquals("$.source.event_type.display_name: is missing but it is required", validationMessage.getMessage(), "unexpected validation message");
+        }
+    }
+
+    /**
+     * Tests that when an "action-out" which contains a source along with an
+     * event type with an empty display name gets validated, a "minimum length"
+     * validation error is returned.
+     */
+    @Test
+    void validParseableActionOutMissingEventTypeDisplayName() {
+        final UUID id = UUID.randomUUID();
+        final Action targetAction = new Action.ActionBuilder()
+                .withId(id)
+                .withVersion("v1.1.0")
+                .withBundle("my-bundle")
+                .withApplication("Policies")
+                .withTimestamp(LocalDateTime.now())
+                .withEventType("Any")
+                .withOrgId("testTenant")
+                .withContext(
+                        new Context.ContextBuilder()
+                                .withAdditionalProperty("user_id", "123456-7890")
+                                .withAdditionalProperty("user_name", "foobar")
+                                .build()
+                )
+                .withEvents(List.of(
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "v")
+                                                .withAdditionalProperty("k2", "v2")
+                                                .withAdditionalProperty("k3", "v")
+                                                .build()
+                                ).build(),
+                        new Event.EventBuilder()
+                                .withMetadata(new Metadata())
+                                .withPayload(
+                                        new Payload.PayloadBuilder()
+                                                .withAdditionalProperty("k", "b")
+                                                .withAdditionalProperty("k2", "b2")
+                                                .withAdditionalProperty("k3", "b")
+                                                .build()
+                                ).build()
+                ))
+                .build();
+
+        final ActionOut targetActionOut = new ActionOut.ActionOutBuilder()
+                .withId(targetAction.getId())
+                .withVersion(targetAction.getVersion())
+                .withBundle(targetAction.getBundle())
+                .withApplication(targetAction.getApplication())
+                .withTimestamp(targetAction.getTimestamp())
+                .withEventType(targetAction.getEventType())
+                .withOrgId(targetAction.getOrgId())
+                .withContext(targetAction.getContext())
+                .withEvents(targetAction.getEvents())
+                .withSource(
+                        new Source.SourceBuilder()
+                                .withApplication(
+                                        new Application.ApplicationBuilder()
+                                                .withDisplayName("action-display-name")
+                                                .build()
+                                )
+                                .withBundle(
+                                        new Bundle.BundleBuilder()
+                                                .withDisplayName("bundle-display-name")
+                                                .build()
+                                )
+                                .withEventType(
+                                        new EventType.EventTypeBuilder()
+                                                .withDisplayName("")
+                                                .build()
+                                )
+                                .build()
+                )
+                .build();
+
+        final ParsingException exception = Assertions.assertThrows(
+                ParsingException.class,
+                () -> Parser.validate(targetActionOut),
+                "exception expected, got none"
+        );
+
+        Assertions.assertEquals(1, exception.getValidationMessages().size(), "one validation exception expected");
+
+        for (final var validationMessage : exception.getValidationMessages()) {
+            Assertions.assertEquals("$.source.event_type.display_name: must be at least 1 characters long", validationMessage.getMessage(), "unexpected validation message");
+        }
+    }
+
 
     private Action getValidAction() {
         return new Action.ActionBuilder()
