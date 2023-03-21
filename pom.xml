@@ -23,7 +23,7 @@
         <maven.compiler.target>${java.release}</maven.compiler.target>
         <maven.compiler.source>${java.release}</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <surefire-plugin.version>2.22.2</surefire-plugin.version>
+        <surefire-plugin.version>3.0.0</surefire-plugin.version>
         <junit.version>5.9.2</junit.version>
         <checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
         <javadoc.plugin.version>3.5.0</javadoc.plugin.version>
