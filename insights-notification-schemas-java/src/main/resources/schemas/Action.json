@@ -102,6 +102,15 @@
             "title": "Users",
             "description": "List of users to direct the notification to. Note that this does not ignore the user preferences."
           },
+          "emails": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Emails",
+            "description": "List of emails to direct the notification to. Note that this does not ignore the user preferences."
+          },
           "groups": {
             "type": "array",
             "default": [],

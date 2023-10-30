@@ -152,6 +152,7 @@ public class TestParser {
          action.getRecipients().get(0).setOnlyAdmins(null);
          action.getRecipients().get(0).setGroups(null);
          action.getRecipients().get(0).setUsers(null);
+         action.getRecipients().get(0).setEmails(null);
 
          otherAction = Parser.decode(Parser.encode(action));
 
@@ -159,6 +160,7 @@ public class TestParser {
          assertEquals(Boolean.FALSE, otherAction.getRecipients().get(0).getOnlyAdmins());
          assertEquals(List.of(), otherAction.getRecipients().get(0).getGroups());
          assertEquals(List.of(), otherAction.getRecipients().get(0).getUsers());
+         assertEquals(List.of(), otherAction.getRecipients().get(0).getEmails());
      }
 
      @Test
