@@ -26,7 +26,7 @@
         <surefire-plugin.version>3.2.5</surefire-plugin.version>
         <junit.version>5.10.1</junit.version>
         <checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
-        <javadoc.plugin.version>3.6.2</javadoc.plugin.version>
+        <javadoc.plugin.version>3.6.3</javadoc.plugin.version>
         <jackson.version>2.15.3</jackson.version>
         <json-schema-validator.version>1.0.87</json-schema-validator.version>
         <slf4j.version>2.0.11</slf4j.version>
