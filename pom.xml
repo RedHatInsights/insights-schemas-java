@@ -27,7 +27,7 @@
         <junit.version>5.10.2</junit.version>
         <checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
         <javadoc.plugin.version>3.6.3</javadoc.plugin.version>
-        <jackson.version>2.15.3</jackson.version>
+        <jackson.version>2.17.1</jackson.version>
         <json-schema-validator.version>1.0.87</json-schema-validator.version>
         <slf4j.version>2.0.12</slf4j.version>
     </properties>
