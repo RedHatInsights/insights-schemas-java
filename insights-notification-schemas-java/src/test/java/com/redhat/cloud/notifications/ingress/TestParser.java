@@ -59,6 +59,14 @@ public class TestParser {
                                                 .build()
                                 ).build()
                 ))
+                .withRecipientsAuthorizationCriterion(new RecipientsAuthorizationCriterion.RecipientsAuthorizationCriterionBuilder()
+                    .withId("1234")
+                    .withRelation("relation_1")
+                    .withType(new Type.TypeBuilder()
+                        .withName("type_name")
+                        .withNamespace("type_namespace")
+                        .build())
+                    .build())
                 .build();
 
         String serializedAction = Parser.encode(targetAction);
@@ -73,6 +81,10 @@ public class TestParser {
         assertEquals(2, deserializedAction.getEvents().size());
         assertEquals("v2", deserializedAction.getEvents().get(0).getPayload().getAdditionalProperties().get("k2"));
         assertEquals("b2", deserializedAction.getEvents().get(1).getPayload().getAdditionalProperties().get("k2"));
+        assertEquals("1234", deserializedAction.getRecipientsAuthorizationCriterion().getId());
+        assertEquals("relation_1", deserializedAction.getRecipientsAuthorizationCriterion().getRelation());
+        assertEquals("type_name", deserializedAction.getRecipientsAuthorizationCriterion().getType().getName());
+        assertEquals("type_namespace", deserializedAction.getRecipientsAuthorizationCriterion().getType().getNamespace());
     }
 
     @Test
@@ -90,8 +102,8 @@ public class TestParser {
     }
 
     @Test
-    void deserializeWithStringContextAndPayloadAndId() {
-        String serializedWithoutRecipients = "{\"id\": \"f81d4fae-7dec-11d0-a765-00a0c91e6bf6\",\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"org_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
+    void deserializeWithStringContextAndPayloadAndIdAndRecipientsAuthorizationCriterion() {
+        String serializedWithoutRecipients = "{\"id\": \"f81d4fae-7dec-11d0-a765-00a0c91e6bf6\",\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"org_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"recipients_authorization_criterion\":{\"id\":\"abc1\",\"relation\":\"rel1\",\"type\":{\"name\":\"type_name\",\"namespace\":\"type_namespace\"}},\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
         Action deserializedAction = Parser.decode(serializedWithoutRecipients);
         assertNotNull(deserializedAction);
         assertEquals("123456-7890", deserializedAction.getContext().getAdditionalProperties().get("user_id"));
@@ -102,6 +114,11 @@ public class TestParser {
         assertEquals("v2", deserializedAction.getEvents().get(0).getPayload().getAdditionalProperties().get("k2"));
         assertEquals("b2", deserializedAction.getEvents().get(1).getPayload().getAdditionalProperties().get("k2"));
         assertEquals("2.0.0", deserializedAction.getVersion());
+
+        assertEquals("abc1", deserializedAction.getRecipientsAuthorizationCriterion().getId());
+        assertEquals("rel1", deserializedAction.getRecipientsAuthorizationCriterion().getRelation());
+        assertEquals("type_name", deserializedAction.getRecipientsAuthorizationCriterion().getType().getName());
+        assertEquals("type_namespace", deserializedAction.getRecipientsAuthorizationCriterion().getType().getNamespace());
     }
 
     @Test
@@ -112,6 +129,21 @@ public class TestParser {
         for (Event event : deserializedAction.getEvents()) {
             assertNotNull(event.getMetadata());
         }
+    }
+
+    @Test
+    void shouldFailWithoutARequiredFieldForRecipientsAuthorizationCriterion() throws JsonProcessingException {
+        String template = "{\"id\": \"f81d4fae-7dec-11d0-a765-00a0c91e6bf6\",\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"org_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"recipients_authorization_criterion\":{\"id\":\"abc1\",\"relation\":\"rel1\",\"type\":{\"name\":\"type_name\",\"namespace\":\"type_namespace\"}},\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
+
+        // required
+        testRequiredField("recipients_authorization_criterion.id", true, template);
+        testRequiredField("recipients_authorization_criterion.relation", true, template);
+        testRequiredField("recipients_authorization_criterion.type", true, template);
+        testRequiredField("recipients_authorization_criterion.type.name", true, template);
+        testRequiredField("recipients_authorization_criterion.type.namespace", true, template);
+
+        // optional
+        testRequiredField("recipients_authorization_criterion", false, template);
     }
 
     @Test
@@ -355,6 +387,14 @@ public class TestParser {
                                                 .build()
                                 ).build()
                 ))
+                .withRecipientsAuthorizationCriterion(new RecipientsAuthorizationCriterion.RecipientsAuthorizationCriterionBuilder()
+                    .withId("1234")
+                    .withRelation("relation_1")
+                    .withType(new Type.TypeBuilder()
+                        .withName("type_name")
+                        .withNamespace("type_namespace")
+                        .build())
+                    .build())
                 .build();
 
         final ActionOut targetActionOut = new ActionOut.ActionOutBuilder()
@@ -367,6 +407,7 @@ public class TestParser {
                 .withOrgId(targetAction.getOrgId())
                 .withContext(targetAction.getContext())
                 .withEvents(targetAction.getEvents())
+                .withRecipientsAuthorizationCriterion(targetAction.getRecipientsAuthorizationCriterion())
                 .withSource(
                         new Source.SourceBuilder()
                                 .withApplication(

@@ -16,6 +16,7 @@
     "context": {},
     "events": {},
     "recipients": {},
+    "recipients_authorization_criterion": {},
     "source": {
       "additionalProperties": false,
       "description": "The extended details related to the Action",
