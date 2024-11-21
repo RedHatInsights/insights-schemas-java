@@ -125,6 +125,43 @@
         "additionalProperties": false
       },
       "description": "Applications can add extra email recipients by adding entries to this array. This setting extends whatever the Administrators configured in their Notifications settings. This won't override notification's administrator settings - this will extend the settings."
+    },
+    "recipients_authorization_criterion": {
+      "type": "object",
+      "description": "Authorization criterion to validate against Kessel to restrict notifications recipients list",
+      "title": "Recipients authorization criterion",
+      "properties": {
+        "type": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "required": true
+            },
+            "namespace": {
+              "type": "string",
+              "required": true
+            }
+          },
+          "required": [
+            "name",
+            "namespace"
+          ],
+          "additionalProperties": false
+        },
+        "relation": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "relation",
+        "type"
+      ],
+      "additionalProperties": false
     }
   },
   "additionalProperties": false,
