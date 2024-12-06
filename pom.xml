@@ -4,7 +4,7 @@
 
     <groupId>com.redhat.cloud.common</groupId>
     <artifactId>insights-schemas-java-parent</artifactId>
-    <version>0.23</version>
+    <version>0.22-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Red Hat Insights schemas Java code</name>
@@ -44,7 +44,7 @@
         <connection>scm:git:ssh://git@github.com/RedHatInsights/insights-schemas-java.git</connection>
         <url>https://github.com/RedHatInsights/insights-schemas-java.git</url>
         <developerConnection>scm:git:ssh://git@github.com/RedHatInsights/insights-schemas-java.git</developerConnection>
-        <tag>insights-schemas-java-parent-0.23</tag>
+        <tag>insights-schemas-java-parent-0.10</tag>
     </scm>
 
     <developers>
