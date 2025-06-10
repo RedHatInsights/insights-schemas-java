@@ -579,7 +579,7 @@ public class TestParser {
         Assertions.assertEquals(1, exception.getValidationMessages().size(), "one validation exception expected");
 
         for (final var validationMessage : exception.getValidationMessages()) {
-            Assertions.assertEquals("$.source.application.display_name: is missing but it is required", validationMessage.getMessage(), "unexpected validation message");
+            Assertions.assertEquals("$.source.application: required property 'display_name' not found", validationMessage.getMessage(), "unexpected validation message");
         }
     }
 
@@ -754,7 +754,7 @@ public class TestParser {
         Assertions.assertEquals(1, exception.getValidationMessages().size(), "one validation exception expected");
 
         for (final var validationMessage : exception.getValidationMessages()) {
-            Assertions.assertEquals("$.source.bundle.display_name: is missing but it is required", validationMessage.getMessage(), "unexpected validation message");
+            Assertions.assertEquals("$.source.bundle: required property 'display_name' not found", validationMessage.getMessage(), "unexpected validation message");
         }
     }
 
@@ -929,7 +929,7 @@ public class TestParser {
         Assertions.assertEquals(1, exception.getValidationMessages().size(), "one validation exception expected");
 
         for (final var validationMessage : exception.getValidationMessages()) {
-            Assertions.assertEquals("$.source.event_type.display_name: is missing but it is required", validationMessage.getMessage(), "unexpected validation message");
+            Assertions.assertEquals("$.source.event_type: required property 'display_name' not found", validationMessage.getMessage(), "unexpected validation message");
         }
     }
 

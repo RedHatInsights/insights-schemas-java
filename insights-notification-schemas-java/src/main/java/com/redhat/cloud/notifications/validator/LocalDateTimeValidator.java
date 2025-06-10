@@ -1,5 +1,6 @@
 package com.redhat.cloud.notifications.validator;
 
+import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Format;
 
 import java.time.format.DateTimeFormatter;
@@ -15,6 +16,10 @@ public class LocalDateTimeValidator implements Format {
     }
 
     @Override
+    public boolean matches(ExecutionContext executionContext, String text) {
+        return matches(text);
+    }
+
     public boolean matches(String text) {
         try {
             DateTimeFormatter.ISO_DATE_TIME.parse(text);
@@ -26,7 +31,7 @@ public class LocalDateTimeValidator implements Format {
     }
 
     @Override
-    public String getErrorMessageDescription() {
+    public String getMessageKey() {
         return message;
     }
 }

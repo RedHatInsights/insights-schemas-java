@@ -7,11 +7,13 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ApplyDefaultsStrategy;
+import com.networknt.schema.Formats;
 import com.networknt.schema.JsonMetaSchema;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.NonValidationKeyword;
+import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidatorTypeCode;
@@ -111,7 +113,7 @@ public class Parser {
     public static void validate(JsonNode action, JsonSchema jsonSchema) {
         ValidationResult result = jsonSchema.walk(action, true);
 
-        if (result.getValidationMessages().size() > 0) {
+        if (!result.getValidationMessages().isEmpty()) {
             throw new ParsingException(result.getValidationMessages());
         }
     }
@@ -150,12 +152,18 @@ public class Parser {
     }
 
     private static JsonSchema getJsonSchema(final String schemaPath) {
-        SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
-        schemaValidatorsConfig.setApplyDefaultsStrategy(new ApplyDefaultsStrategy(
-                true,
-                true,
-                true
-        ));
+        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder()
+            .pathType(PathType.LEGACY)
+            .errorMessageKeyword("message")
+            .nullableKeywordEnabled(true)
+            .applyDefaultsStrategy(
+                new ApplyDefaultsStrategy(
+                    true,
+                    true,
+                    true
+                ))
+            .build();
+
 
         try (InputStream jsonSchemaStream = Parser.class.getResourceAsStream(schemaPath)) {
             JsonNode schema = objectMapper.readTree(jsonSchemaStream);
@@ -172,21 +180,22 @@ public class Parser {
     private static JsonSchemaFactory jsonSchemaFactory() {
         String ID = "$id";
 
-        JsonMetaSchema overrideDateTimeValidator = new JsonMetaSchema.Builder(JsonMetaSchema.getV7().getUri())
+        JsonMetaSchema overrideDateTimeValidator = new JsonMetaSchema.Builder(JsonMetaSchema.getV7().getIri())
                 .idKeyword(ID)
-                .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V7))
-                .addKeywords(List.of(
+                .keywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V7))
+                .keywords(List.of(
                         new NonValidationKeyword("title"),
                         new NonValidationKeyword("$comment"),
                         new NonValidationKeyword("description"),
                         new NonValidationKeyword("default")
                 ))
-                .addFormats(JsonMetaSchema.COMMON_BUILTIN_FORMATS)
-                .addFormat(new LocalDateTimeValidator())
+                .formats(Formats.DEFAULT)
+                .format(new LocalDateTimeValidator())
+                .specification(SpecVersion.VersionFlag.V7)
                 .build();
 
-        return new JsonSchemaFactory.Builder().defaultMetaSchemaURI(overrideDateTimeValidator.getUri())
-                .addMetaSchema(overrideDateTimeValidator)
+        return new JsonSchemaFactory.Builder().defaultMetaSchemaIri(overrideDateTimeValidator.getIri())
+                .metaSchema(overrideDateTimeValidator)
                 .build();
 
     }
