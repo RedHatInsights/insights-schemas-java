@@ -13,6 +13,7 @@
     "timestamp": {},
     "account_id": {},
     "org_id": {},
+    "severity": {},
     "context": {},
     "events": {},
     "recipients": {},
