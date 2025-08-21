@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.redhat.cloud.common</groupId>
         <artifactId>insights-schemas-java-parent</artifactId>
-        <version>0.24</version>
+        <version>0.25-SNAPSHOT</version>
     </parent>
     <artifactId>insights-notification-schemas-java</artifactId>
     <packaging>jar</packaging>
