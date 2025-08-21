@@ -42,6 +42,11 @@
       "type": "string",
       "title": "Organization id"
     },
+    "severity": {
+      "type": "string",
+      "title": "Severity",
+      "description": "Overall severity of the notification. If events of varying severity are provided, use the highest level."
+    },
     "context": {
       "type": "object",
       "default": {},
