@@ -24,11 +24,11 @@
         <maven.compiler.source>${java.release}</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <surefire-plugin.version>3.5.3</surefire-plugin.version>
-        <junit.version>5.13.1</junit.version>
+        <junit.version>5.13.4</junit.version>
         <checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
-        <javadoc.plugin.version>3.11.2</javadoc.plugin.version>
+        <javadoc.plugin.version>3.11.3</javadoc.plugin.version>
         <jackson.version>2.19.2</jackson.version>
-        <json-schema-validator.version>1.5.7</json-schema-validator.version>
+        <json-schema-validator.version>1.5.8</json-schema-validator.version>
         <slf4j.version>2.0.17</slf4j.version>
     </properties>
 

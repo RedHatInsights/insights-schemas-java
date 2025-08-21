@@ -33,6 +33,7 @@ public class TestParser {
                 .withTimestamp(LocalDateTime.now())
                 .withEventType("Any")
                 .withOrgId("testTenant")
+                .withSeverity("Important")
                 .withContext(
                         new Context.ContextBuilder()
                                 .withAdditionalProperty("user_id", "123456-7890")
@@ -75,6 +76,7 @@ public class TestParser {
         assertNotNull(deserializedAction);
         assertEquals(targetAction.getAccountId(), deserializedAction.getAccountId());
         assertEquals(id, targetAction.getId());
+        assertEquals("Important", deserializedAction.getSeverity());
         assertEquals("123456-7890", deserializedAction.getContext().getAdditionalProperties().get("user_id"));
         assertEquals("foobar", deserializedAction.getContext().getAdditionalProperties().get("user_name"));
 
@@ -103,7 +105,7 @@ public class TestParser {
 
     @Test
     void deserializeWithStringContextAndPayloadAndIdAndRecipientsAuthorizationCriterion() {
-        String serializedWithoutRecipients = "{\"id\": \"f81d4fae-7dec-11d0-a765-00a0c91e6bf6\",\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"org_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"recipients_authorization_criterion\":{\"id\":\"abc1\",\"relation\":\"rel1\",\"type\":{\"name\":\"type_name\",\"namespace\":\"type_namespace\"}},\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
+        String serializedWithoutRecipients = "{\"id\": \"f81d4fae-7dec-11d0-a765-00a0c91e6bf6\",\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"org_id\":\"testTenant\",\"severity\":\"None\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"recipients_authorization_criterion\":{\"id\":\"abc1\",\"relation\":\"rel1\",\"type\":{\"name\":\"type_name\",\"namespace\":\"type_namespace\"}},\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
         Action deserializedAction = Parser.decode(serializedWithoutRecipients);
         assertNotNull(deserializedAction);
         assertEquals("123456-7890", deserializedAction.getContext().getAdditionalProperties().get("user_id"));
@@ -133,7 +135,7 @@ public class TestParser {
 
     @Test
     void shouldFailWithoutARequiredFieldForRecipientsAuthorizationCriterion() throws JsonProcessingException {
-        String template = "{\"id\": \"f81d4fae-7dec-11d0-a765-00a0c91e6bf6\",\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"org_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"recipients_authorization_criterion\":{\"id\":\"abc1\",\"relation\":\"rel1\",\"type\":{\"name\":\"type_name\",\"namespace\":\"type_namespace\"}},\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
+        String template = "{\"id\": \"f81d4fae-7dec-11d0-a765-00a0c91e6bf6\",\"bundle\":\"my-bundle\",\"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"org_id\":\"testTenant\",\"severity\":\"Undefined\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"recipients_authorization_criterion\":{\"id\":\"abc1\",\"relation\":\"rel1\",\"type\":{\"name\":\"type_name\",\"namespace\":\"type_namespace\"}},\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
 
         // required
         testRequiredField("recipients_authorization_criterion.id", true, template);
@@ -148,7 +150,7 @@ public class TestParser {
 
     @Test
     void shouldFailWithoutARequiredField() throws JsonProcessingException {
-        String template = "{\"recipients\":[], \"bundle\":\"a-bundle\", \"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"account_id\":\"testTenant\",\"org_id\":\"testTenant\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
+        String template = "{\"recipients\":[], \"bundle\":\"a-bundle\", \"application\":\"Policies\",\"event_type\":\"Any\",\"timestamp\":\"2021-08-24T16:36:31.806149\",\"account_id\":\"testTenant\",\"org_id\":\"testTenant\",\"severity\":\"Important\",\"context\":\"{\\\"user_id\\\":\\\"123456-7890\\\",\\\"user_name\\\":\\\"foobar\\\"}\",\"events\":[{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"v2\\\",\\\"k3\\\":\\\"v\\\",\\\"k\\\":\\\"v\\\"}\"},{\"metadata\":{},\"payload\":\"{\\\"k2\\\":\\\"b2\\\",\\\"k3\\\":\\\"b\\\",\\\"k\\\":\\\"b\\\"}\"}]}\n";
 
         // required
         testRequiredField("org_id", true, template);
@@ -162,6 +164,7 @@ public class TestParser {
         // optional
         testRequiredField("context", false, template);
         testRequiredField("account_id", false, template);
+        testRequiredField("severity", false, template);
         testRequiredField("events.0.metadata", false, template);
         testRequiredField("recipients", false, template);
     }
@@ -197,14 +200,14 @@ public class TestParser {
 
      @Test
      void shouldNotAcceptExtraPropertiesAtEventLevelWhenDeserializingAndFailIfSerializingOrValidating() {
-         String jsonAction = "{\"bundle\": \"rhel\", \"application\": \"advisor\", \"event_type\": \"new-recommendation\", \"timestamp\": \"2022-05-02T19:47:15.626507+00:00\", \"account_id\": \"6089719\", \"context\": {}, \"events\": [{\"metadata\": {}, \"payload\": {}, \"report_url\": \"https://console.redhat.com/insights/advisor/recommendations/hardening_grub|GRUB_HARDENING_3/4c548b3c-b816-4d69-97cf-d8046fc10139\"}, {\"metadata\": {}, \"payload\": {}, \"report_url\": \"https://console.redhat.com/insights/advisor/recommendations/insights_core_egg_not_up2date|INSIGHTS_CORE_EGG_NOT_UP2DATE/4c548b3c-b816-4d69-97cf-d8046fc10139\"}, {\"metadata\": {}, \"payload\": {}, \"report_url\": \"https://console.redhat.com/insights/advisor/recommendations/wrong_tuned_profile|WRONG_TUNED_PROFILE_USED_FOR_VIRTUAL_GUEST/4c548b3c-b816-4d69-97cf-d8046fc10139\"}]}";
+         String jsonAction = "{\"bundle\": \"rhel\", \"application\": \"advisor\", \"event_type\": \"new-recommendation\", \"timestamp\": \"2022-05-02T19:47:15.626507+00:00\", \"account_id\": \"6089719\", \"severity\": \"None\", \"context\": {}, \"events\": [{\"metadata\": {}, \"payload\": {}, \"report_url\": \"https://console.redhat.com/insights/advisor/recommendations/hardening_grub|GRUB_HARDENING_3/4c548b3c-b816-4d69-97cf-d8046fc10139\"}, {\"metadata\": {}, \"payload\": {}, \"report_url\": \"https://console.redhat.com/insights/advisor/recommendations/insights_core_egg_not_up2date|INSIGHTS_CORE_EGG_NOT_UP2DATE/4c548b3c-b816-4d69-97cf-d8046fc10139\"}, {\"metadata\": {}, \"payload\": {}, \"report_url\": \"https://console.redhat.com/insights/advisor/recommendations/wrong_tuned_profile|WRONG_TUNED_PROFILE_USED_FOR_VIRTUAL_GUEST/4c548b3c-b816-4d69-97cf-d8046fc10139\"}]}";
          assertThrows(ParsingException.class, () -> Parser.decode(jsonAction));
          assertThrows(ParsingException.class, () -> Parser.validate(jsonAction));
      }
 
     @Test
     void shouldAcceptTimestampWith00OffsetWhenDeserializingAndValidating() {
-        String jsonAction = "{\"version\":\"v1.1.0\",\"bundle\":\"rhel\",\"application\":\"compliance\",\"event_type\":\"compliance-below-threshold\",\"timestamp\":\"2022-05-02T17:30:54+00:00\",\"org_id\":\"6089719\",\"events\":[{\"metadata\":{},\"payload\": {}}],\"context\": {},\"recipients\":[]}";
+        String jsonAction = "{\"version\":\"v1.1.0\",\"bundle\":\"rhel\",\"application\":\"compliance\",\"event_type\":\"compliance-below-threshold\",\"timestamp\":\"2022-05-02T17:30:54+00:00\",\"org_id\":\"6089719\",\"severity\":\"None\",\"events\":[{\"metadata\":{},\"payload\": {}}],\"context\": {},\"recipients\":[]}";
         Action action = Parser.decode(jsonAction);
         assertEquals(LocalDateTime.of(2022, 5, 2, 17, 30 ,54), action.getTimestamp());
 
@@ -256,6 +259,10 @@ public class TestParser {
 
         action = getValidAction();
         action.setRecipients(null);
+        testParserEncode(action, false);
+
+        action = getValidAction();
+        action.setSeverity(null);
         testParserEncode(action, false);
 
         // no account_id
@@ -361,6 +368,8 @@ public class TestParser {
                 .withTimestamp(LocalDateTime.now())
                 .withEventType("Any")
                 .withOrgId("testTenant")
+                .withAccountId("account-id")
+                .withSeverity("Critical")
                 .withContext(
                         new Context.ContextBuilder()
                                 .withAdditionalProperty("user_id", "123456-7890")
@@ -405,6 +414,8 @@ public class TestParser {
                 .withTimestamp(targetAction.getTimestamp())
                 .withEventType(targetAction.getEventType())
                 .withOrgId(targetAction.getOrgId())
+                .withAccountId(targetAction.getAccountId())
+                .withSeverity(targetAction.getSeverity())
                 .withContext(targetAction.getContext())
                 .withEvents(targetAction.getEvents())
                 .withRecipientsAuthorizationCriterion(targetAction.getRecipientsAuthorizationCriterion())
@@ -448,6 +459,8 @@ public class TestParser {
                 .withTimestamp(LocalDateTime.now())
                 .withEventType("Any")
                 .withOrgId("testTenant")
+                .withAccountId("test-account-id")
+                .withSeverity("Critical")
                 .withContext(
                         new Context.ContextBuilder()
                                 .withAdditionalProperty("user_id", "123456-7890")
@@ -484,6 +497,8 @@ public class TestParser {
                 .withTimestamp(targetAction.getTimestamp())
                 .withEventType(targetAction.getEventType())
                 .withOrgId(targetAction.getOrgId())
+                .withAccountId(targetAction.getAccountId())
+                .withSeverity(targetAction.getSeverity())
                 .withContext(targetAction.getContext())
                 .withEvents(targetAction.getEvents())
                 .withSource(
@@ -1026,6 +1041,7 @@ public class TestParser {
         return new Action.ActionBuilder()
                 .withAccountId("account-id")
                 .withOrgId("my-org-id")
+                .withSeverity("Important")
                 .withBundle("my-bundle")
                 .withApplication("my-app")
                 .withEventType("my-event-type")
