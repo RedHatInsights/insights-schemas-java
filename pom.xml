@@ -15,7 +15,6 @@
         <module>insights-notification-schemas-java</module>
     </modules>
 
-
     <properties>
         <compiler-plugin.version>3.10.1</compiler-plugin.version>
         <java.release>11</java.release>
@@ -117,7 +116,7 @@
     </profiles>
     
     <distributionManagement>
-            <repository>
+        <repository>
             <id>nexus</id>
             <url>https://repository.jboss.org/nexus/repository/platform-integrations/</url>
             <layout>default</layout>
