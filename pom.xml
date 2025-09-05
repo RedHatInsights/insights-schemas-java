@@ -59,6 +59,7 @@
 
     <profiles>
         <profile>
+            <!-- Releasing -->
             <id>release</id>
             <build>
                 <plugins>
