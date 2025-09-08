@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/RedHatInsights/insights-schemas-java/compare/v1.0.0...v1.0.1) (2025-09-08)
+
+
+### Bug Fixes
+
+* Improve pgp key management ([#186](https://github.com/RedHatInsights/insights-schemas-java/issues/186)) ([96445f0](https://github.com/RedHatInsights/insights-schemas-java/commit/96445f010e63cb0c3ed37de4503513db8f6f66e1))
+
 ## 1.0.0 (2025-09-05)
 
 
