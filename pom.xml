@@ -27,7 +27,7 @@
         <checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
         <javadoc.plugin.version>3.11.3</javadoc.plugin.version>
         <jackson.version>2.20.0</jackson.version>
-        <json-schema-validator.version>1.5.8</json-schema-validator.version>
+        <json-schema-validator.version>1.5.9</json-schema-validator.version>
         <slf4j.version>2.0.17</slf4j.version>
         <gpg.keyname>${env.GPG_KEYNAME}</gpg.keyname>
         <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
