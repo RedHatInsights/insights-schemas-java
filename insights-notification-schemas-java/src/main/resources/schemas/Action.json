@@ -43,7 +43,7 @@
       "title": "Organization id"
     },
     "severity": {
-      "type": "string",
+      "type": [ "string", "null" ],
       "title": "Severity",
       "description": "Overall severity of the notification. If events of varying severity are provided, use the highest level."
     },

@@ -353,6 +353,11 @@ public class TestParser {
         );
     }
 
+    @Test
+    void shouldAcceptNullSeverity() {
+        assertDoesNotThrow(() -> Parser.decode("{\"severity\":null,\"version\":\"v1.1.0\",\"id\":\"44bb1963-0881-4730-b0b3-afc387048bc1\",\"bundle\":\"test-bundle\",\"application\":\"Policies\",\"event_type\":\"any\",\"timestamp\":\"2025-09-24T10:41:41.618865429\",\"org_id\":\"test-org-id\",\"events\":[],\"recipients\":[],\"context\":{}}"));
+    }
+
     /**
      * Validate that when an "action-out" that is properly built is validated,
      * it doesn't generate any validation errors.
