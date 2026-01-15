@@ -6,18 +6,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.ApplyDefaultsStrategy;
-import com.networknt.schema.Formats;
-import com.networknt.schema.JsonMetaSchema;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaException;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.NonValidationKeyword;
-import com.networknt.schema.PathType;
-import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.schema.SpecVersion;
-import com.networknt.schema.ValidatorTypeCode;
-import com.networknt.schema.ValidationResult;
+import com.networknt.schema.walk.ApplyDefaultsStrategy;
+import com.networknt.schema.format.Formats;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.BasicDialectRegistry;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaException;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.keyword.AnnotationKeyword;
+import com.networknt.schema.path.PathType;
+import com.networknt.schema.ExecutionConfig;
+import com.networknt.schema.SchemaRegistryConfig;
+import com.networknt.schema.SpecificationVersion;
+import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.Result;
 import com.redhat.cloud.notifications.jackson.LocalDateTimeModule;
 import com.redhat.cloud.notifications.validator.LocalDateTimeValidator;
 
@@ -29,7 +31,7 @@ import java.util.List;
 public class Parser {
 
     final static ObjectMapper objectMapper = new ObjectMapper();
-    private final static JsonSchema jsonSchema;
+    private final static Schema jsonSchema;
 
     private final static String ACTION_SCHEMA_PATH = "/schemas/Action.json";
     private final static String ACTION_OUT_SCHEMA_PATH = "/schemas/Action-out.json";
@@ -110,11 +112,19 @@ public class Parser {
      *                   the context and events[*].payload fields and are reported as
      *                   errors.
      */
-    public static void validate(JsonNode action, JsonSchema jsonSchema) {
-        ValidationResult result = jsonSchema.walk(action, true);
+    public static void validate(JsonNode action, Schema jsonSchema) {
+        Result result = jsonSchema.walk(action, true, executionContext -> {
+            executionContext.walkConfig(walkConfig -> {
+                walkConfig.applyDefaultsStrategy(applyDefaults -> {
+                    applyDefaults.applyArrayDefaults(true)
+                        .applyPropertyDefaults(true)
+                        .applyPropertyDefaultsIfNull(true);
+                });
+            });
+        });
 
-        if (!result.getValidationMessages().isEmpty()) {
-            throw new ParsingException(result.getValidationMessages());
+        if (!result.getErrors().isEmpty()) {
+            throw new ParsingException(result.getErrors());
         }
     }
 
@@ -123,7 +133,7 @@ public class Parser {
      * @param actionOut ActionOut to be validated.
      */
     public static void validate(final ActionOut actionOut) {
-        final JsonSchema actionOutJsonSchema = getJsonSchema(ACTION_OUT_SCHEMA_PATH);
+        final Schema actionOutJsonSchema = getJsonSchema(ACTION_OUT_SCHEMA_PATH);
 
         validate(objectMapper.valueToTree(actionOut), actionOutJsonSchema);
     }
@@ -151,52 +161,43 @@ public class Parser {
         }
     }
 
-    private static JsonSchema getJsonSchema(final String schemaPath) {
-        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder()
+    private static Schema getJsonSchema(final String schemaPath) {
+        SchemaRegistryConfig schemaRegistryConfig = SchemaRegistryConfig.builder()
             .pathType(PathType.LEGACY)
             .errorMessageKeyword("message")
-            .nullableKeywordEnabled(true)
-            .applyDefaultsStrategy(
-                new ApplyDefaultsStrategy(
-                    true,
-                    true,
-                    true
-                ))
             .build();
-
 
         try (InputStream jsonSchemaStream = Parser.class.getResourceAsStream(schemaPath)) {
             JsonNode schema = objectMapper.readTree(jsonSchemaStream);
 
-            return jsonSchemaFactory().getSchema(
-                    schema,
-                    schemaValidatorsConfig
-            );
+            SchemaRegistry schemaRegistry = jsonSchemaFactory(schemaRegistryConfig);
+            return schemaRegistry.getSchema(com.networknt.schema.SchemaLocation.of(schemaPath), schema);
         } catch (IOException ioe) {
-            throw new JsonSchemaException(ioe);
+            throw new SchemaException(ioe);
         }
     }
 
-    private static JsonSchemaFactory jsonSchemaFactory() {
+    private static SchemaRegistry jsonSchemaFactory(SchemaRegistryConfig schemaRegistryConfig) {
         String ID = "$id";
 
-        JsonMetaSchema overrideDateTimeValidator = new JsonMetaSchema.Builder(JsonMetaSchema.getV7().getIri())
+        Dialect overrideDateTimeValidator = Dialect.builder(Dialects.getDraft7())
                 .idKeyword(ID)
-                .keywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V7))
-                .keywords(List.of(
-                        new NonValidationKeyword("title"),
-                        new NonValidationKeyword("$comment"),
-                        new NonValidationKeyword("description"),
-                        new NonValidationKeyword("default")
-                ))
-                .formats(Formats.DEFAULT)
+                .keywords(keywords -> {
+                    keywords.put("title", new AnnotationKeyword("title"));
+                    keywords.put("$comment", new AnnotationKeyword("$comment"));
+                    keywords.put("description", new AnnotationKeyword("description"));
+                    keywords.put("default", new AnnotationKeyword("default"));
+                })
                 .format(new LocalDateTimeValidator())
-                .specification(SpecVersion.VersionFlag.V7)
+                .specificationVersion(SpecificationVersion.DRAFT_7)
                 .build();
 
-        return new JsonSchemaFactory.Builder().defaultMetaSchemaIri(overrideDateTimeValidator.getIri())
-                .metaSchema(overrideDateTimeValidator)
-                .build();
+        BasicDialectRegistry dialectRegistry = new BasicDialectRegistry(List.of(overrideDateTimeValidator));
 
+        return SchemaRegistry.builder()
+                .defaultDialectId(overrideDateTimeValidator.getId())
+                .dialectRegistry(dialectRegistry)
+                .schemaRegistryConfig(schemaRegistryConfig)
+                .build();
     }
 }
