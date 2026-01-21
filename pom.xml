@@ -26,7 +26,7 @@
         <junit.version>5.13.4</junit.version>
         <checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
         <javadoc.plugin.version>3.12.0</javadoc.plugin.version>
-        <jackson.version>2.20.1</jackson.version>
+        <jackson.version>2.21.0</jackson.version>
         <json-schema-validator.version>2.0.1</json-schema-validator.version>
         <slf4j.version>2.0.17</slf4j.version>
         <gpg.keyname>${env.GPG_KEYNAME}</gpg.keyname>
