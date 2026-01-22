@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/RedHatInsights/insights-schemas-java/compare/v1.0.3...v1.1.0) (2026-01-22)
+
+
+### Features
+
+* Release insights-schemas-java ([#211](https://github.com/RedHatInsights/insights-schemas-java/issues/211)) ([04c2ee6](https://github.com/RedHatInsights/insights-schemas-java/commit/04c2ee62625fcf7bc0235c17f15a71a86336cdb6))
+
 ## [1.0.3](https://github.com/RedHatInsights/insights-schemas-java/compare/v1.0.2...v1.0.3) (2026-01-15)
 
 
