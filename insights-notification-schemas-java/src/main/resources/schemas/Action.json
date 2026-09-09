@@ -115,7 +115,7 @@
               "format": "email"
             },
             "title": "Emails",
-            "description": "List of emails to direct the notification to. Note that this does not ignore the user preferences. Emails list will be merged with other settings. Subscription settings do not work with emails. Therefore, emails should only be used to send notifications to mailing lists or email addresses that do not belong to the current org. Prefer using the users field for any other use cases."
+            "description": "List of emails to direct the notification to. Emails list will be merged with other settings. Subscription settings do not work with emails. Therefore, emails should only be used to send notifications to mailing lists or email addresses that do not belong to the current org. Prefer using the users field for any other use cases."
           },
           "groups": {
             "type": "array",
