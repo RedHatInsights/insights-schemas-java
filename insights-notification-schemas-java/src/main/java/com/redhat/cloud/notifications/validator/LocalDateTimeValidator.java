@@ -8,7 +8,7 @@ import java.time.format.DateTimeParseException;
 
 public class LocalDateTimeValidator implements Format {
 
-    private String message;
+    private final ThreadLocal<String> message = new ThreadLocal<>();
 
     @Override
     public String getName() {
@@ -23,15 +23,18 @@ public class LocalDateTimeValidator implements Format {
     public boolean matches(String text) {
         try {
             DateTimeFormatter.ISO_DATE_TIME.parse(text);
+            message.remove();
             return true;
         } catch (DateTimeParseException exception) {
-            message = exception.getMessage();
+            message.set(exception.getMessage());
             return false;
         }
     }
 
     @Override
     public String getMessageKey() {
-        return message;
+        String result = message.get();
+        message.remove();
+        return result;
     }
 }
