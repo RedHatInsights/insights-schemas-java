@@ -16,15 +16,19 @@ Import notification schemas in your java project like:
 
 == Releasing
 
-There are no automatic releases at this point. To do a manual release the following must be done:
+Releases are automated with https://github.com/googleapis/release-please[release-please] (see `.github/workflows/release.yml`). Commits merged to `master` are scanned for https://www.conventionalcommits.org/[Conventional Commits] prefixes; a commit prefixed `fix:` or `feat:` makes release-please open/update a release PR that bumps the version and updates `CHANGELOG.md`. Merging that release PR triggers the `publish` job, which runs `mvn deploy -Prelease` and pushes the signed artifacts automatically - no manual Nexus steps required.
 
-=== Pre-requisites
+=== Manual release (deprecated)
+
+The following manual process predates the automated release workflow above and should no longer be needed. It's kept here for historical reference only.
+
+==== Pre-requisites
 
 . Configure your public key for pushing to `github.com`
 . Add your engineering account to maven config (see below)
   .. The account needs to have permissions for pushing to jboss.staging
 
-=== Adding your engineering account
+==== Adding your engineering account
 
 Open your maven settings file (usually on `~/.m2/settings.xml`) and add the server and your credentials
 inside the `settings` tag or anywhere where it can be activated. Replace with your username and password.
@@ -40,7 +44,7 @@ inside the `settings` tag or anywhere where it can be activated. Replace with yo
 </servers>
 ----
 
-=== Doing a release
+==== Doing a release
 
 . Checkout latest code and checkout `master` branch locally. e.g. `git checkout master && git fetch upstream && git reset --hard upstream/master`
 . Do a dry run by running the following commands:
