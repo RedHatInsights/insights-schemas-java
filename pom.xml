@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.redhat.cloud.common</groupId>
+    <artifactId>insights-schemas-java-parent</artifactId>
+    <version>1.1.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Red Hat Insights schemas Java code</name>
+    <description>Schemas for Java apps on cloud.redhat.com</description>
+    <url>https://github.com/RedHatInsights/insights-schemas-java</url>
+
+    <modules>
+        <module>insights-notification-schemas-java</module>
+    </modules>
+
+    <properties>
+        <compiler-plugin.version>3.10.1</compiler-plugin.version>
+        <java.release>11</java.release>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
+        <maven.compiler.target>${java.release}</maven.compiler.target>
+        <maven.compiler.source>${java.release}</maven.compiler.source>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <surefire-plugin.version>3.5.4</surefire-plugin.version>
+        <junit.version>5.13.4</junit.version>
+        <checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
+        <javadoc.plugin.version>3.12.0</javadoc.plugin.version>
+        <jackson.version>2.21.0</jackson.version>
+        <json-schema-validator.version>2.0.1</json-schema-validator.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <gpg.keyname>${env.GPG_KEYNAME}</gpg.keyname>
+        <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+    </properties>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:ssh://git@github.com/RedHatInsights/insights-schemas-java.git</connection>
+        <url>https://github.com/RedHatInsights/insights-schemas-java.git</url>
+        <developerConnection>scm:git:ssh://git@github.com/RedHatInsights/insights-schemas-java.git</developerConnection>
+        <tag>insights-schemas-java-parent-0.10</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>Josejulio Martínez</name>
+            <organization>Red Hat</organization>
+        </developer>
+    </developers>
+    <dependencies>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <!-- Releasing profile -->
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${javadoc.plugin.version}</version>
+                        <configuration>
+                            <failOnError>false</failOnError>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.4.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>        
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.8</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <keyname>${gpg.keyname}</keyname>
+                                    <passphrase>${gpg.passphrase}</passphrase>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    
+    <distributionManagement>
+        <repository>
+            <id>nexus</id>
+            <url>https://repository.jboss.org/nexus/repository/platform-integrations/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </distributionManagement>
+</project>

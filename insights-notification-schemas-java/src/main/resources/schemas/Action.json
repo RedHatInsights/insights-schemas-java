@@ -1,0 +1,181 @@
+{
+  "type": "object",
+  "title": "Notification message",
+  "$comment": "Generated with https://hellosean1025.github.io/json-schema-visual-editor/",
+  "properties": {
+    "version": {
+      "type": "string",
+      "title": "Version of the notification schema",
+      "default": "2.0.0"
+    },
+    "id": {
+      "type": "string",
+      "title": "Id of the Event as UUID4",
+      "format": "uuid"
+    },
+    "bundle": {
+      "type": "string",
+      "title": "Bundle name",
+      "description": "Bundle name as used during application registration"
+    },
+    "application": {
+      "type": "string",
+      "title": "Application name",
+      "description": "Application name as used during application registration"
+    },
+    "event_type": {
+      "type": "string",
+      "title": "Event type name",
+      "description": "Event type name as used during application registration"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 formatted date (per platform convention) when the message was sent in UTC. Dates with timezones/offsets are rejected.",
+      "title": "Sent timestamp"
+    },
+    "account_id": {
+      "type": [ "string", "null" ],
+      "title": "Account id"
+    },
+    "org_id": {
+      "type": "string",
+      "title": "Organization id"
+    },
+    "severity": {
+      "type": "string",
+      "title": "Severity",
+      "description": "Overall severity of the notification. If events of varying severity are provided, use the highest level."
+    },
+    "context": {
+      "type": "object",
+      "default": {},
+      "properties": {},
+      "description": "Extra information common to all events sent.",
+      "title": "Context"
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "title": "Events",
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {},
+            "title": "Event's metadata",
+            "description": "Placeholder for future details we might need",
+            "default": {}
+          },
+          "payload": {
+            "type": "object",
+            "properties": {},
+            "description": "Your application payload. All the data required by the app to compose the various messages (Email, webhook, etc) after transformation",
+            "title": "Event payload"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "payload"
+        ]
+      }
+    },
+    "recipients": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "properties": {
+          "only_admins": {
+            "type": "boolean",
+            "default": false,
+            "title": "Only admins",
+            "description": "Setting to true sends an email to the administrators of the account. Setting to false sends an email to all users of the account. Note that this does not ignore the user preferences."
+          },
+          "ignore_user_preferences": {
+            "type": "boolean",
+            "default": false,
+            "title": "Ignore user preferences",
+            "description": "Setting to true ignores all the user preferences on this Recipient setting (It doesn't affect other configuration that an Administrator sets on their Notification settings). Setting to false (default) honors the user preferences."
+          },
+          "users": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Users",
+            "description": "List of users to direct the notification to. Note that this does not ignore the user preferences. If this list is present and not empty, users from the org who are not included in the list will not receive the notification."
+          },
+          "emails": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "string",
+              "format": "email"
+            },
+            "title": "Emails",
+            "description": "List of emails to direct the notification to. Emails list will be merged with other settings. Subscription settings do not work with emails. Therefore, emails should only be used to send notifications to mailing lists or email addresses that do not belong to the current org. Prefer using the users field for any other use cases."
+          },
+          "groups": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Groups",
+            "description": "List of group ids to direct the notification to. Note that this does not ignore the user preferences."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Applications can add extra email recipients by adding entries to this array. This setting extends whatever the Administrators configured in their Notifications settings. This won't override notification's administrator settings - this will extend the settings."
+    },
+    "recipients_authorization_criterion": {
+      "type": "object",
+      "description": "Authorization criterion to validate against Kessel to restrict notifications recipients list",
+      "title": "Recipients authorization criterion",
+      "properties": {
+        "type": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "required": true
+            },
+            "namespace": {
+              "type": "string",
+              "required": true
+            }
+          },
+          "required": [
+            "name",
+            "namespace"
+          ],
+          "additionalProperties": false
+        },
+        "relation": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "relation",
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "bundle",
+    "application",
+    "event_type",
+    "timestamp",
+    "events",
+    "org_id"
+  ]
+}
