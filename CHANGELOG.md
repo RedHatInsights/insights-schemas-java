@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.0](https://github.com/RedHatInsights/insights-schemas-java/compare/v1.1.0...v1.2.0)
+
+### Features
+
+* feat: align release workflow with clowder-quarkus-config-source (#242) ([ba1c22d](https://github.com/RedHatInsights/insights-schemas-java/commit/ba1c22d6a9fbd88cfa901138309b78f487da0959))
+
+### Bug Fixes
+
+* fix: replace release-please-action with GPG-signed release script (#224) ([e88d00a](https://github.com/RedHatInsights/insights-schemas-java/commit/e88d00a45e8f2d97cdefd9cdb934cc6f0568f752))
+* fix(fullsend): trigger review only via /fs-review, not every commit (#227) ([99c258b](https://github.com/RedHatInsights/insights-schemas-java/commit/99c258bb517dc9d6146710806a4a10c26fd080d8))
+* fix(validator): make LocalDateTimeValidator thread-safe with ThreadLocal (#221) ([8a293b0](https://github.com/RedHatInsights/insights-schemas-java/commit/8a293b0ed85a96cc5a630ae17336e823e44e4885))
+* fix: update readme and deploy merged changes (#223) ([852cb4e](https://github.com/RedHatInsights/insights-schemas-java/commit/852cb4eea9467cbb32471456a9347230796b356c))
+
+
 ## [1.1.0](https://github.com/RedHatInsights/insights-schemas-java/compare/v1.0.3...v1.1.0) (2026-01-22)
 
 
