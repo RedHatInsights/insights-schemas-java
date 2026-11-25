@@ -5,3 +5,6 @@ target/
 /deploy/tmp/
 
 .DS_Store
+
+# fullsend lint/run cache
+/.fullsend/.fullsend-cache/
